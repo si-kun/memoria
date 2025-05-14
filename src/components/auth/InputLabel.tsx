@@ -1,34 +1,31 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { SignupData } from "@/types";
 
 interface InputLabelProps {
   label: string;
-  name: string;
-  id: string;
-  placeholder: string;
   type: string;
-  handleChange: (Key: keyof SignupData, value: string | File | null) => void;
+  name: string;
+  placeholder: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const InputLabel = ({
   label,
-  name,
-  id,
-  placeholder,
   type,
-  handleChange,
+  name,
+  placeholder,
+  onChange,
 }: InputLabelProps) => {
   return (
     <div className="flex flex-col space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={name}>{label}</Label>
       <Input
         type={type}
-        id={id}
+        id={name}
         name={name}
         placeholder={placeholder}
-        onChange={(e) => handleChange(name as keyof SignupData, e.target.value)}
+        onChange={onChange}
       />
     </div>
   );

@@ -1,29 +1,33 @@
-export const signupLabelItems = [
+
+export interface signupLabelItem {
+    label: string;
+    type: string;
+    name: string;
+    placeholder: string;
+}
+
+export const signupLabelItems: signupLabelItem[] = [
     {
         label: "Display Name",
-        name: "displayName",
-        id: "displayName",
-        placeholder: "Enter your display name",
         type: "text",
+        name: "displayName",
+        placeholder: "Enter your display name",
     },
     {
         label: "Email",
+        type: "email",
         name: "email",
-        id: "email",
         placeholder: "Enter your email",
-        type: "email"
     },
     {
         label: "Password",
+        type: "password",
         name: "password",
-        id: "password",
         placeholder: "Enter your password",
-        type: "password"
     },
     {
         label: "Avatar",
         name: "avatar",
-        id: "avatar",
         placeholder: "Upload your avatar Image(optional)",
         type: "file"
     }
