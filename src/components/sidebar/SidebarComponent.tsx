@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 
 import {
@@ -16,12 +18,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
+import { useAtomValue } from "jotai";
+import { folderAtom } from "@/atom/noteAtom";
+import Link from "next/link";
 
 // Menu items.
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
@@ -47,8 +52,11 @@ const items = [
 ];
 
 const SidebarComponent = () => {
+  const folder = useAtomValue(folderAtom);
+  console.log(folder);
+
   return (
-    <Sidebar className="mt-[60px]">
+    <Sidebar className="mt-[55px]">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -56,10 +64,10 @@ const SidebarComponent = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -71,11 +79,14 @@ const SidebarComponent = () => {
                   <AccordionItem value="item-1">
                     <AccordionTrigger>My Notes Folders</AccordionTrigger>
                     <AccordionContent>
-                      <SidebarMenuButton asChild>
-                        <a href="#">
-                          <span>My Notes Folders</span>
-                        </a>
-                      </SidebarMenuButton>
+                      {folder.map((f) => (
+                        <SidebarMenuButton asChild key={f.id}>
+                          <a href="#">
+                            <span>{f.folderName}</span>
+                            <span>({f.notes.length})</span>
+                          </a>
+                        </SidebarMenuButton>
+                      ))}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

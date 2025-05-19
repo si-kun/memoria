@@ -14,3 +14,15 @@ export interface SigninData extends AuthBaseData {
     displayName?: string;
     avatar?: File | null;
 }
+
+export interface AddNoteDataFrom {
+    id: string;
+    title: string;
+    tags: string[];
+    unScheduled: boolean;
+    startDate: Date;
+    endDate: Date;
+    folderName: string;
+    public: boolean;
+    content: string;
+}

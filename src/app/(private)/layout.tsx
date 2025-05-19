@@ -11,7 +11,7 @@ export default function PrivateLayout({
   return (
     <AuthGuard>
       <SidebarProvider>
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-screen h-screen overflow-hidden">
           <Header />
           <div className="w-full h-full flex">
             <SidebarComponent />

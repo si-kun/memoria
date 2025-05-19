@@ -46,5 +46,19 @@ model Note {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
   public Boolean @default(false)
+
+  startDate DateTime?
+  endDate DateTime?
+  unScheduled Boolean @default(false)
+  tags Tag[]
+  
   @@unique([title, userId])
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String
+  noteId String
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  @@unique([name, noteId])
 }

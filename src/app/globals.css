@@ -1,5 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
+
+
+
+.custom-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white; /* 透け防止 */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); /* 軽い影 */
+}
+
+.custom-toolbar-contents {
+  padding: 0.5rem 1rem;
+}
+
+/* globals.css */
+.editor-content {
+  height: 100% !important;
+  overflow-y: auto !important;
+}
 
 @custom-variant dark (&:is(.dark *));
 

@@ -7,11 +7,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputLabel from "./InputLabel";
 import { Button } from "../ui/button";
 import { signupLabelItem } from "@/app/(auth)/signup/signupLabelItems";
 import { signinLabelItemType } from "@/app/(auth)/signin/signinLabelItems";
+import AvatarComponent from "../avatar/AvatarComponent";
 
 interface AuthFormProps {
   handleChange: (key: string, value: string | File | null) => void;
@@ -38,10 +38,7 @@ const AuthForm = ({
             <CardTitle>{title}</CardTitle>
             <CardDescription>Create an account to get started.</CardDescription>
           </div>
-          <Avatar className="w-12 h-12">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+          <AvatarComponent />
         </div>
       </CardHeader>
       <CardContent>
