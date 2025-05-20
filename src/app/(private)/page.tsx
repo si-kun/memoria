@@ -1,12 +1,7 @@
 "use client";
 
-import { getAllNote } from "@/_server-actions/getAllNote";
 import {
   allNoteAtom,
-  comingUpNoteAtom,
-  folderAtom,
-  todayNoteAtom,
-  unscheduledNoteAtom,
 } from "@/atom/noteAtom";
 import { userAtom } from "@/atom/userAtom";
 import { Card } from "@/components/ui/card";
@@ -16,118 +11,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useAtom } from "jotai";
+import {  useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import CardItem from "@/components/card/CardItem";
 import { Note } from "@prisma/client";
-import { getTodayNotes } from "@/_server-actions/note/getTodayNotes";
-import { getComingupNotes } from "@/_server-actions/note/getComingupNotes";
-import { getFolder } from "@/_server-actions/getFolder";
-import { getUnscheduled } from "@/_server-actions/note/getUnscheduled";
 import DialogDetail from "@/components/dialogDetail/DialogDetail";
+import { useFetchNotes } from "@/hooks/useFetchNotes";
+import { useNoteAccordion } from "@/hooks/noteAccordion";
 
 export default function Home() {
-  const [user, setUser] = useAtom(userAtom);
-  const [notes, setNotes] = useAtom(allNoteAtom);
-  const [todayNotes, setTodayNotes] = useAtom(todayNoteAtom);
-  const [comingUpNotes, setComingUpNotes] = useAtom(comingUpNoteAtom);
-  const [unscheduledNotes, setUnscheduledNotes] = useAtom(unscheduledNoteAtom);
-  const [filterNotes, setFilterNotes] = useState<Note[]>([]);
-  const [folder, setFolder] = useAtom(folderAtom);
+  const user = useAtomValue(userAtom);
+  const notes = useAtomValue(allNoteAtom);
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-  const noteAccordion = [
-    {
-      id: "comingUpNotes",
-      title: "Coming up",
-      notes: comingUpNotes,
-      value: "item-1",
-    },
-    {
-      id: "todayNotes",
-      title: "Today",
-      notes: todayNotes,
-      value: "item-2",
-    },
-    {
-      id: "unscheduledNotes",
-      title: "Unscheduled",
-      notes: unscheduledNotes,
-      value: "item-3",
-    },
-  ];
+  //データ取得のカスタムフック
+  useFetchNotes();
 
-  useEffect(() => {
-    if (!user) return;
-    const userId = user?.id;
-
-    if (userId) {
-    }
-    const fetchNotes = async () => {
-      if (userId) {
-        const result = await getAllNote(userId);
-
-        if (result.success && result.data) {
-          setNotes(result.data);
-        }
-      }
-    };
-
-    const fetchTodayNotes = async () => {
-      if (userId) {
-        const result = await getTodayNotes(userId);
-
-        if (result.success && result.data) {
-          setTodayNotes(result.data);
-        }
-      }
-    };
-
-    const fetchComingUpNotes = async () => {
-      if (userId) {
-        const result = await getComingupNotes(userId);
-
-        if (result.success && result.data) {
-          setComingUpNotes(result.data);
-        }
-      }
-    };
-
-    const fetchUnscheduledNotes = async () => {
-      if (userId) {
-        const result = await getUnscheduled(userId);
-
-        if (result.success && result.data) {
-          setUnscheduledNotes(result.data);
-        }
-      }
-    };
-
-    const fetchFolder = async () => {
-      if (userId) {
-        const result = await getFolder(userId);
-
-        if (result.success && result.data) {
-          setFolder(result.data);
-        }
-      }
-    };
-
-    fetchNotes();
-    fetchTodayNotes();
-    fetchComingUpNotes();
-    fetchUnscheduledNotes();
-    fetchFolder();
-  }, [
-    setNotes,
-    setTodayNotes,
-    setComingUpNotes,
-    setUnscheduledNotes,
-    setFolder,
-    user,
-  ]);
-
+  //ノートのアコーディオン
+  const noteAccordion = useNoteAccordion();
   //確認用
   useEffect(() => {
     console.log(selectedNote);
