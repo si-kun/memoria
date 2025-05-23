@@ -1,7 +1,6 @@
 import AuthGuard from "@/components/auth/AuthGuard";
 import Header from "@/components/header/Header";
 import SidebarComponent from "@/components/sidebar/SidebarComponent";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function PrivateLayout({
   children,
@@ -10,15 +9,13 @@ export default function PrivateLayout({
 }>) {
   return (
     <AuthGuard>
-      <SidebarProvider>
-        <div className="flex flex-col w-screen h-screen overflow-hidden">
-          <Header />
-          <div className="w-full h-full flex">
-            <SidebarComponent />
-            {children}
-          </div>
+      <div className="flex flex-col w-screen h-screen">
+        <Header />
+        <div className="flex flex-1 overflow-hidden">
+          <SidebarComponent />
+          {children}
         </div>
-      </SidebarProvider>
+      </div>
     </AuthGuard>
   );
 }

@@ -1,13 +1,12 @@
-import React, { ChangeEvent } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { useFormContext } from "react-hook-form";
 
 interface InputLabelProps {
   label: string;
   type: string;
   name: string;
   placeholder: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const InputLabel = ({
@@ -15,17 +14,18 @@ const InputLabel = ({
   type,
   name,
   placeholder,
-  onChange,
 }: InputLabelProps) => {
+
+  const {register} = useFormContext();
+
   return (
     <div className="flex flex-col space-y-1.5">
       <Label htmlFor={name}>{label}</Label>
       <Input
         type={type}
         id={name}
-        name={name}
         placeholder={placeholder}
-        onChange={onChange}
+        {...register(name)}
       />
     </div>
   );

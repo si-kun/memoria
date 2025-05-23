@@ -1,3 +1,5 @@
+"use server"
+
 import { prisma } from "@/utils/prisma/prismaClient"
 
 export const getUnscheduled = async(userId: string) => {

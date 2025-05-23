@@ -1,39 +1,44 @@
 "use client";
 
-import {
-  allNoteAtom,
-} from "@/atom/noteAtom";
+import { allNoteAtom } from "@/atom/noteAtom";
 import { userAtom } from "@/atom/userAtom";
-import { Card } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {  useAtomValue } from "jotai";
+import { Accordion } from "@/components/ui/accordion";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import CardItem from "@/components/card/CardItem";
 import { Note } from "@prisma/client";
-import DialogDetail from "@/components/dialogDetail/DialogDetail";
+import DialogDetail from "@/components/dialog/DialogDetail";
 import { useFetchNotes } from "@/hooks/useFetchNotes";
 import { useNoteAccordion } from "@/hooks/noteAccordion";
+import { deleteNote } from "@/_server-actions/note/deleteNote";
+import AccordionCard from "@/components/card/AccordionCard";
+import MoreDialog from "@/components/dialog/MoreDialog";
+
+export type MORE_CATEGORY =
+  | "todayNotes"
+  | "comingUpNotes"
+  | "unscheduledNotes"
+  | null;
 
 export default function Home() {
   const user = useAtomValue(userAtom);
   const notes = useAtomValue(allNoteAtom);
+  console.log(notes);
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [moreDialogCategory, setMoreDialogCategory] =
+    useState<MORE_CATEGORY>(null);
+
+  useEffect(() => {
+    console.log(moreDialogCategory);
+  }, [moreDialogCategory]);
+
+  const [moreDialog, setMoreDialog] = useState(false);
 
   //データ取得のカスタムフック
-  useFetchNotes();
+  const { refetchNotes } = useFetchNotes();
 
   //ノートのアコーディオン
   const noteAccordion = useNoteAccordion();
-  //確認用
-  useEffect(() => {
-    console.log(selectedNote);
-  }, [, selectedNote]);
 
   if (!user) {
     return <div>Loading...</div>;
@@ -42,6 +47,17 @@ export default function Home() {
   const handleSelectedNote = (id: string) => {
     const filteredNotes = notes.filter((note) => note.id === id);
     setSelectedNote(filteredNotes[0]);
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    const result = await deleteNote(id);
+    if (result.success) {
+      setSelectedNote(null);
+      setMoreDialog(false);
+      refetchNotes();
+    } else {
+      console.error(result.error);
+    }
   };
 
   return (
@@ -53,41 +69,28 @@ export default function Home() {
         className="w-[60%] flex flex-col gap-4"
       >
         {noteAccordion.map((item) => (
-          <Card
-            key={item.value}
-            className="bg-gray-100 w-full h-auto rounded-lg p-4 flex flex-col gap-4"
-          >
-            <AccordionItem value={item.value}>
-              <AccordionTrigger className="font-bold text-lg p-1">
-                {item.title}
-              </AccordionTrigger>
-
-              <AccordionContent className="flex flex-col gap-2 p-0">
-                {item.notes.length === 0 ? (
-                  <div className="flex h-full">
-                    <p className="text-gray-500">No notes</p>
-                  </div>
-                ) : (
-                  item.notes.map((note) => (
-                    <CardItem
-                      key={note.id}
-                      id={note.id}
-                      title={note.title}
-                      startDate={note.startDate}
-                      endDate={note.endDate}
-                      handleSelectedNote={handleSelectedNote}
-                    />
-                  ))
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Card>
+          <AccordionCard
+            key={item.id}
+            item={item}
+            handleSelectedNote={handleSelectedNote}
+            setMoreDialog={setMoreDialog}
+            setMoreDialogCategory={setMoreDialogCategory}
+          />
         ))}
       </Accordion>
       {selectedNote && (
         <DialogDetail
           selectedNote={selectedNote}
           setSelectedNote={setSelectedNote}
+          handleDeleteNote={handleDeleteNote}
+        />
+      )}
+      {moreDialog && (
+        <MoreDialog
+          moreDialog={moreDialog}
+          moreDialogCategory={moreDialogCategory}
+          setMoreDialog={setMoreDialog}
+          handleSelectedNote={handleSelectedNote}
         />
       )}
     </div>

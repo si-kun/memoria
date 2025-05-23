@@ -2,7 +2,6 @@ import React from "react";
 
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -16,26 +15,33 @@ import { Button } from "../ui/button";
 interface DialogDetailProps {
   selectedNote: Note;
   setSelectedNote: (note: Note | null) => void;
+  handleDeleteNote: (id: string) => void;
 }
 
-const DialogDetail = ({ selectedNote, setSelectedNote }: DialogDetailProps) => {
+const DialogDetail = ({
+  selectedNote,
+  setSelectedNote,
+  handleDeleteNote,
+}: DialogDetailProps) => {
   return (
     <Dialog open={selectedNote !== null}>
-      <DialogTrigger>Open</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-[50%]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>{selectedNote.title}</DialogTitle>
-            <DialogClose>
-              <Button variant="outline" onClick={() => setSelectedNote(null)}>
-                Close
-              </Button>
+            <DialogClose asChild onClick={() => setSelectedNote(null)}>
+              <Button variant="outline">Close</Button>
             </DialogClose>
           </div>
           <DialogDescription>{selectedNote.content}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="destructive">Delete</Button>
+          <Button
+            variant="destructive"
+            onClick={() => handleDeleteNote(selectedNote.id)}
+          >
+            Delete
+          </Button>
           <Button variant="outline">Edit</Button>
         </DialogFooter>
       </DialogContent>

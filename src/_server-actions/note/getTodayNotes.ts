@@ -13,6 +13,10 @@ export const getTodayNotes = async (userId: string) => {
           gte: startOfDay(new Date()),
           lte: endOfDay(new Date()),
         },
+        public: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 

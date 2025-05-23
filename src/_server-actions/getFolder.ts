@@ -14,6 +14,11 @@ export const getFolder = async (userId: string) => {
                         id: true,
                         title: true,
                     }
+                },
+                _count: {
+                    select: {
+                        notes: true,
+                    }
                 }
             },
         })

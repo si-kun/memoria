@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/utils/prisma/prismaClient"
-import { endOfDay } from "date-fns"
+import { endOfDay, startOfDay } from "date-fns"
 
 export const getComingupNotes = async(userId: string) => {
     try {
@@ -9,9 +9,21 @@ export const getComingupNotes = async(userId: string) => {
             where: {
                 userId,
                 unScheduled: false,
-                startDate: {
-                    gte: endOfDay(new Date())
-                }
+                OR: [
+
+                    {
+                        startDate: {
+                            gte: endOfDay(new Date())
+                        },
+                    },
+                    {
+                        endDate: {
+                            lt: startOfDay(new Date())
+                        }
+                    },
+                    // 完了していないノート スキーマに追加する
+                    // isCompleted: false
+                ]
             }
         })
 

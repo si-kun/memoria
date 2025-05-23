@@ -1,4 +1,3 @@
-
 export interface AuthBaseData {
     email: string;
     password: string;
@@ -6,7 +5,7 @@ export interface AuthBaseData {
 
 export interface SignupData extends AuthBaseData {
     displayName: string;
-    avatar: File | null;
+    avatar?: File;
 }
 
 export interface SigninData extends AuthBaseData {

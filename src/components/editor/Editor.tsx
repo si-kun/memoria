@@ -17,7 +17,6 @@ import {
   UndoRedo,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-import { AddNoteData } from "@/types";
 
 const customEditors: CodeBlockEditorDescriptor[] = [
   {
@@ -72,18 +71,12 @@ const plugins = [
 
 interface EditorProps {
   markdown: string;
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    key: keyof AddNoteData
-  ) => void;
+  onChange: (markdown: string) => void;
 }
 
 const Editor = ({ markdown, onChange }: EditorProps) => {
   const handleEditorChange = (newMarkdown: string) => {
-    onChange(
-      { target: { value: newMarkdown } } as React.ChangeEvent<HTMLInputElement>,
-      "content"
-    );
+    onChange(newMarkdown);
   };
 
   return (

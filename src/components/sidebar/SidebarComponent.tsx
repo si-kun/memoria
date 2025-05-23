@@ -1,26 +1,46 @@
 "use client";
 
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  Calendar,
+  ChevronUp,
+  Home,
+  Inbox,
+  Search,
+  Settings,
+  User2,
+} from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarProvider,
 } from "@/components/ui/sidebar";
 import { Separator } from "../ui/separator";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../ui/accordion";
-import { useAtomValue } from "jotai";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
+import { useAtomValue, useSetAtom } from "jotai";
 import { folderAtom } from "@/atom/noteAtom";
-import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { userAtom } from "@/atom/userAtom";
+import { supabase } from "@/utils/supabase/client";
 
 // Menu items.
 const items = [
@@ -52,50 +72,104 @@ const items = [
 ];
 
 const SidebarComponent = () => {
-  const folder = useAtomValue(folderAtom);
-  console.log(folder);
+  const folders = useAtomValue(folderAtom);
+  const user = useSetAtom(userAtom);
+
+  const handleSignout = async() => {
+    const result = await supabase.auth.signOut()
+
+    if(result.error) {
+      console.log(result.error)
+      return
+    }
+
+    user(null)
+  }
 
   return (
-    <Sidebar className="mt-[55px]">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
+    <SidebarProvider>
+      <Sidebar className="h-full w-64">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <Separator />
+          <SidebarGroup>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              <Collapsible className="group/collapsible">
+                <SidebarMenuItem className="list-none">
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
+                    <CollapsibleTrigger className="font-semibold mb-1 w-full">
+                      Folder
+                    </CollapsibleTrigger>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            <Separator />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger>My Notes Folders</AccordionTrigger>
-                    <AccordionContent>
-                      {folder.map((f) => (
-                        <SidebarMenuButton asChild key={f.id}>
-                          <a href="#">
-                            <span>{f.folderName}</span>
-                            <span>({f.notes.length})</span>
-                          </a>
+
+                  {folders.map((folder) => (
+                    <CollapsibleContent key={folder.id}>
+                      <SidebarMenuSub>
+                        <SidebarMenuButton asChild>
+                          <SidebarMenuSubItem className="pl-2">
+                            {folder.folderName}
+                            <SidebarMenuBadge>
+                              ({folder.notes.length})
+                            </SidebarMenuBadge>
+                          </SidebarMenuSubItem>
                         </SidebarMenuButton>
-                      ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </SidebarMenuItem>
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  ))}
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter className="w-full">
+          <SidebarMenu className="w-full">
+            <SidebarMenuItem className="w-full">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="w-full">
+                  <SidebarMenuButton className="w-full">
+                    <User2 /> Username
+                    <ChevronUp className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  className="w-50 bg-blue-300"
+                  align="center"
+                  alignOffset={0}
+                  sideOffset={8}
+                >
+                  <DropdownMenuItem className="w-full">
+                    <span>Account</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="w-full">
+                    <span>Billing</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="w-full" onClick={handleSignout}>
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+    </SidebarProvider>
   );
 };
 
