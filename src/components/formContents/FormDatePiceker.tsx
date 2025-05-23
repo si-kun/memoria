@@ -3,9 +3,9 @@ import DatePicker from "react-datepicker";
 
 interface FormDatePicekerProps {
   title: string;
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-  disabled: boolean;
+  selectedDate: Date | null;
+  setSelectedDate: (date: Date | null) => void;
+  disabled?: boolean;
 }
 
 const FormDatePiceker = ({

@@ -75,6 +75,7 @@ const MoreDialog = ({
                   title={note.title}
                   startDate={note.startDate}
                   endDate={note.endDate}
+                  unScheduled={note.unScheduled}
                   handleSelectedNote={handleSelectedNote}
                 />
               </div>

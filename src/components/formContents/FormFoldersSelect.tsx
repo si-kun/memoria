@@ -6,8 +6,8 @@ import FormFolderSelect from "./FormFolderSelect";
 interface FormFoldersSelectProps {
   newFolder: string;
   setNewFolder: (folder: string) => void;
-  selectFolder: string;
-  setSelectFolder: (folder: string) => void;
+  selectFolder: string | undefined;
+  setSelectFolder: (folder: string | undefined) => void;
 }
 
 const FormFoldersSelect = ({
@@ -26,6 +26,7 @@ const FormFoldersSelect = ({
         <Input
           placeholder="New Folder"
           onChange={(e) => setNewFolder(e.target.value)}
+          value={newFolder}
         />
         <FormFolderSelect setSelectFolder={setSelectFolder} newFolder={newFolder}  />
       </div>

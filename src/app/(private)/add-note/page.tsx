@@ -71,7 +71,7 @@ const AddNotePage = () => {
   } = methods;
 
   const [newFolder, setNewFolder] = useState<string>("");
-  const [selectFolder, setSelectFolder] = useState<string>("");
+  const [selectFolder, setSelectFolder] = useState<string[]>([]);
   const folder = useAtomValue(folderAtom);
 
   const unScheduled = watch("unScheduled");
@@ -85,12 +85,12 @@ const AddNotePage = () => {
   const addNoteSubmit = async (values: AddNoteDataFrom) => {
     let finalFolderName = "";
 
-    if (newFolder.trim() !== "" && selectFolder === "") {
+    if (newFolder.trim() !== "" && selectFolder.length === 0) {
       finalFolderName = newFolder;
-    } else if (newFolder.trim() === "" && selectFolder !== "") {
+    } else if (newFolder.trim() === "" && selectFolder.length > 0) {
       finalFolderName =
         folder.find((f) => f.id === selectFolder)?.folderName || "";
-    } else if (newFolder.trim() !== "" && selectFolder !== "") {
+      } else if (newFolder.trim() !== "" && selectFolder.length > 0) {
       finalFolderName = newFolder;
     } else {
       return;
@@ -106,9 +106,6 @@ const AddNotePage = () => {
         const result = await addNewNoteActions(submitData, userId);
 
         if (result.success) {
-          console.log("submit");
-          console.log(submitData);
-
           toast.success("Note created successfully");
           router.replace("/");
         } else {

@@ -1,4 +1,3 @@
-import React from "react";
 
 import {
   Select,
@@ -13,7 +12,7 @@ import { useAtomValue } from "jotai";
 import { folderAtom } from "@/atom/noteAtom";
 
 interface FormFolderSelectProps {
-  setSelectFolder: (folder: string) => void;
+  setSelectFolder: (folder: string | undefined) => void;
   newFolder: string;
 }
 
@@ -26,11 +25,14 @@ const FormFolderSelect = ({
   return (
     <Select disabled={folders.length === 0 || newFolder.length > 0} onValueChange={(value) => {
       if (value === "unselected") {
-        setSelectFolder("");
+        setSelectFolder(undefined);
       } else {
         setSelectFolder(value);
       }
     }}>
+
+
+
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a folder" />
       </SelectTrigger>

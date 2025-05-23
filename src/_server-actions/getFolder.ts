@@ -4,7 +4,17 @@ import { prisma } from "@/utils/prisma/prismaClient"
 
 export const getFolder = async (userId: string) => {
     try {
-        const folder = await prisma.folder.findMany({
+
+        await prisma.folder.deleteMany({
+            where: {
+                userId,
+                notes: {
+                    none: {},
+                }
+            }
+        })
+
+        const folders = await prisma.folder.findMany({
             where: {
                 userId,
             },
@@ -25,7 +35,7 @@ export const getFolder = async (userId: string) => {
 
         return {
             success: true,
-            data: folder,
+            data: folders,
         }
     } catch(error) {
         return {

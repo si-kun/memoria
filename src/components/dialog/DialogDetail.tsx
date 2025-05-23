@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Note } from "@prisma/client";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 interface DialogDetailProps {
   selectedNote: Note;
@@ -23,6 +24,12 @@ const DialogDetail = ({
   setSelectedNote,
   handleDeleteNote,
 }: DialogDetailProps) => {
+
+  const router = useRouter()
+
+  const titleSlug = encodeURIComponent(selectedNote.title)
+  const slug = `${titleSlug}-${selectedNote.id}`
+
   return (
     <Dialog open={selectedNote !== null}>
       <DialogContent className="w-[50%]">
@@ -42,7 +49,7 @@ const DialogDetail = ({
           >
             Delete
           </Button>
-          <Button variant="outline">Edit</Button>
+          <Button variant="outline" onClick={() => router.push(`/edit/${slug}`)}>Edit</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

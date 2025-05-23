@@ -1,4 +1,4 @@
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch} from "react";
 import { Card } from "../ui/card";
 import {
   AccordionContent,
@@ -16,7 +16,7 @@ interface AccordionCardProps {
     id: string;
     value: string;
     title: string;
-    unscheduled: boolean;
+    unScheduled: boolean;
     notes: Note[];
   };
   handleSelectedNote: (id: string) => void;
