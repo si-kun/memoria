@@ -4,7 +4,6 @@ import {
   todayNoteAtom,
   unscheduledNoteAtom,
 } from "@/atom/noteAtom";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -18,6 +17,10 @@ import { useEffect, useState } from "react";
 import CardItem from "../card/CardItem";
 import { ScrollArea } from "../ui/scroll-area";
 import { Checkbox } from "../ui/checkbox";
+import { deleteManyNoteCard } from "@/_server-actions/note/deleteManyNoteCard";
+import toast from "react-hot-toast";
+import { Button } from "../ui/button";
+import { useFetchNotes } from "@/hooks/useFetchNotes";
 
 interface MoreDialogProps {
   moreDialog: boolean;
@@ -33,10 +36,13 @@ const MoreDialog = ({
   handleSelectedNote,
 }: MoreDialogProps) => {
   const [categoryNotes, setCategoryNotes] = useState<Note[]>([]);
+  const [selectedCard, setSelectedCard] = useState<string[]>([]);
 
   const todayNotes = useAtomValue(todayNoteAtom);
   const comingUpNotes = useAtomValue(comingUpNoteAtom);
   const unscheduledNotes = useAtomValue(unscheduledNoteAtom);
+
+  const { refetchNotes } = useFetchNotes();
 
   useEffect(() => {
     switch (moreDialogCategory) {
@@ -52,12 +58,50 @@ const MoreDialog = ({
     }
   }, [moreDialogCategory, todayNotes, comingUpNotes, unscheduledNotes]);
 
+  useEffect(() => {
+    if(!moreDialog) {
+      setSelectedCard([]);
+    }
+  }, [moreDialog]);
+
+  const handleSelectCard = (id: string) => {
+    if (selectedCard.includes(id)) {
+      setSelectedCard((prev) => prev.filter((cardId) => cardId !== id));
+    } else {
+      setSelectedCard((prev) => [...prev, id]);
+    }
+    console.log(selectedCard);
+  };
+
+  const handleDeleteManyCard = async () => {
+    const res = await deleteManyNoteCard(selectedCard);
+
+    if (res.message) {
+      toast.success(res.message);
+      setSelectedCard([]);
+      refetchNotes();
+      setMoreDialog(false);
+    }
+
+    if (res.error) {
+      toast.error(res.error);
+    }
+  };
+
   return (
     <Dialog open={moreDialog}>
       <DialogContent className="w-[60%] h-[70%] flex flex-col">
         <DialogHeader className="shrink-0">
           <div className="flex justify-between">
             <DialogTitle>{moreDialogCategory}</DialogTitle>
+            {selectedCard.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span>{selectedCard.length}件選択中</span>
+                <Button variant={"destructive"} onClick={handleDeleteManyCard}>
+                  削除
+                </Button>
+              </div>
+            )}
             <DialogClose asChild onClick={() => setMoreDialog(false)}>
               <Button variant="outline">Close</Button>
             </DialogClose>
@@ -69,7 +113,10 @@ const MoreDialog = ({
           <div className="flex flex-col gap-3 pb-3">
             {categoryNotes.map((note) => (
               <div key={note.id} className="flex items-center gap-1 w-full">
-                <Checkbox />
+                <Checkbox
+                  checked={selectedCard.includes(note.id)}
+                  onCheckedChange={() => handleSelectCard(note.id)}
+                />
                 <CardItem
                   id={note.id}
                   title={note.title}

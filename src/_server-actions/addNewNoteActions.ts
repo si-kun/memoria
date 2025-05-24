@@ -1,12 +1,12 @@
 "use server";
 
-import { AddNoteDataFrom } from "@/types";
+import { NoteData } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@/utils/prisma/prismaClient";
 
 export const addNewNoteActions = async (
-  addNote: AddNoteDataFrom,
-  userId: string
+  addNote: NoteData,
+  userId: string,
 ) => {
   const {
     title,
@@ -25,7 +25,7 @@ export const addNewNoteActions = async (
       (await prisma.folder.findUnique({
         where: {
           folderName_userId: {
-            folderName,
+            folderName: folderName || "",
             userId,
           },
         },
@@ -33,7 +33,7 @@ export const addNewNoteActions = async (
       (await prisma.folder.create({
         data: {
           id: uuidv4(),
-          folderName,
+          folderName: folderName || "",
           userId,
         },
       }));

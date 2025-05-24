@@ -2,19 +2,10 @@ import React from "react";
 import { Folder } from "lucide-react";
 import { Input } from "../ui/input";
 import FormFolderSelect from "./FormFolderSelect";
+import { useFormContext } from "react-hook-form";
 
-interface FormFoldersSelectProps {
-  newFolder: string;
-  setNewFolder: (folder: string) => void;
-  selectFolder: string | undefined;
-  setSelectFolder: (folder: string | undefined) => void;
-}
-
-const FormFoldersSelect = ({
-  setSelectFolder,
-  setNewFolder,
-  newFolder,
-}: FormFoldersSelectProps) => {
+const FormFoldersSelect = () => {
+  const { register, setValue, watch } = useFormContext();
 
   return (
     <div className="w-full mt-4">
@@ -23,12 +14,12 @@ const FormFoldersSelect = ({
         <span className="text-sm text-gray-500">Folders</span>
       </div>
       <div className="flex gap-2 items-center">
-        <Input
-          placeholder="New Folder"
-          onChange={(e) => setNewFolder(e.target.value)}
-          value={newFolder}
-        />
-        <FormFolderSelect setSelectFolder={setSelectFolder} newFolder={newFolder}  />
+        <Input placeholder="New Folder" value={watch("newFolder")} {...register("newFolder")} onChange={(e) => {
+          const value = e.target.value;
+          setValue("newFolder", value);
+          setValue("folderName", value);
+        }} />
+        <FormFolderSelect />
       </div>
     </div>
   );

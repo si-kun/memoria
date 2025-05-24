@@ -32,14 +32,16 @@ export interface NoteDetailData extends Note {
     tags: Tag[];
 }
 
-export interface NoteDataUpdate {
+export interface NoteData {
     id: string;
     title: string;
     tags: string[];
     unScheduled: boolean;
     startDate: Date | null;
     endDate: Date | null;
-    folderName: string | undefined;
+    folderName: string;
+    selectedFolder?: string;
+    newFolder?: string;
     public: boolean;
     content: string;
 }

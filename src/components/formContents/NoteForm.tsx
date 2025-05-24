@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FormProvider, Path, PathValue, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import FormTagInput from "./FormTagInput";
@@ -13,19 +13,27 @@ import NoteSubmitButton from "../button/NoteSubmitButton";
 import { useAtomValue } from "jotai";
 import { folderAtom } from "@/atom/noteAtom";
 import Editor from "../editor/Editor";
-import { NoteDataUpdate } from "@/types";
+import { NoteData } from "@/types";
 import { userAtom } from "@/atom/userAtom";
 import { updateNote } from "@/_server-actions/note/updateNote";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { addNewNoteActions } from "@/_server-actions/addNewNoteActions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { noteSchema } from "@/shema/noteSchema";
 
 interface NoteFormProps {
-  defaultValues: NoteDataUpdate;
+  defaultValues: NoteData;
+  isEdit?: boolean;
 }
 
-const NoteForm = ({ defaultValues }: NoteFormProps) => {
-  const methods = useForm<NoteDataUpdate>({
-    defaultValues: defaultValues,
+const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
+  const methods = useForm<NoteData>({
+    resolver: zodResolver(noteSchema),
+    defaultValues: {
+      ...defaultValues,
+      selectedFolder: ""
+    }
   });
 
   const router = useRouter();
@@ -42,45 +50,47 @@ const NoteForm = ({ defaultValues }: NoteFormProps) => {
   const user = useAtomValue(userAtom);
   const userId = user?.id;
 
-  const [newFolder, setNewFolder] = useState<string>("");
-  const [selectFolder, setSelectFolder] = useState<string | undefined>("");
-
   useEffect(() => {
-    if (folders.length > 0 && defaultValues.folderName) {
-      const matched = folders.find(
-        (f) => f.folderName === defaultValues.folderName
-      );
-      if (matched) {
-        setNewFolder(matched.folderName);
-      }
-    }
-  }, [folders, defaultValues.folderName]);
+    console.log(defaultValues.folderName);
 
+    const matched = folders.find((f) => f.folderName === defaultValues.folderName)
+
+    setValue("newFolder", defaultValues.folderName);
+
+    if (matched) {
+      setValue("selectedFolder", matched.id);
+    }
+  }, [defaultValues.folderName, folders, setValue]);
   const unScheduled = watch("unScheduled");
 
-  const handleToggleChange = <K extends Path<NoteDataUpdate>>(key: K) => {
+  const handleToggleChange = <K extends Path<NoteData>>(key: K) => {
     const current = watch(key) as boolean;
-    setValue(key, !current as PathValue<NoteDataUpdate, K>);
+    setValue(key, !current as PathValue<NoteData, K>);
   };
 
   if (folders.length === 0) {
     return <div>Loading folders...</div>;
   }
 
-  const handleUpdate = async (data: NoteDataUpdate) => {
-
-    const selectedFolderName = folders.find(folder => folder.id === selectFolder)?.folderName
-    const submitFolder = newFolder !== "" ? newFolder : selectedFolderName;
+  const handleAddNote = async (data: NoteData) => {
 
     if (userId) {
-      const updateNoteData = {
-        ...data,
-        folderName: submitFolder,
-      };
+      const result = await addNewNoteActions(data, userId);
+      console.log(result);
 
-      console.log(updateNoteData);
+      if (result.success) {
+        toast.success(result.message || "新規ノートの作成に成功しました");
+        router.replace("/");
+      } else {
+        toast.error(result.message || "新規ノートの作成に失敗しました");
+      }
+    }
+  };
 
-      const result = await updateNote(updateNoteData, userId);
+  const handleUpdate = async (data: NoteData) => {
+
+    if (userId) {
+      const result = await updateNote(data, userId);
       if (result.success) {
         toast.success(result.message || "更新に成功しました");
         router.replace("/");
@@ -93,7 +103,7 @@ const NoteForm = ({ defaultValues }: NoteFormProps) => {
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={handleSubmit(handleUpdate)}
+        onSubmit={handleSubmit(isEdit ? handleUpdate : handleAddNote)}
         className="w-full h-screen flex gap-10 overflow-hidden p-10 pb-30"
       >
         {/* 左コンテンツ */}
@@ -103,9 +113,7 @@ const NoteForm = ({ defaultValues }: NoteFormProps) => {
             className="shadow-sm focus:ring-2 ring-indigo-400"
             {...register("title")}
           />
-          <FormTagInput
-            defaultValues={defaultValues.tags}
-          />
+          <FormTagInput defaultValues={defaultValues.tags} />
           <Card className="flex flex-col gap-2 mt-4 p-4 space-y-2">
             <FormUnsheduled
               checked={unScheduled}
@@ -129,12 +137,7 @@ const NoteForm = ({ defaultValues }: NoteFormProps) => {
                 disabled={unScheduled}
               />
             </div>
-            <FormFoldersSelect
-              newFolder={newFolder}
-              setNewFolder={setNewFolder}
-              selectFolder={selectFolder}
-              setSelectFolder={setSelectFolder}
-            />
+            <FormFoldersSelect />
           </Card>
           <div className="flex items-center justify-end gap-5">
             <PublicCheck
@@ -150,6 +153,7 @@ const NoteForm = ({ defaultValues }: NoteFormProps) => {
               <ul className="list-disc list-inside text-red-500">
                 {errors.title && <li>{errors.title.message}</li>}
                 {errors.content && <li>{errors.content.message}</li>}
+                {errors.folderName && <li>{errors.folderName.message}</li>}
               </ul>
             </div>
           ) : null}

@@ -16,7 +16,7 @@ interface AccordionCardProps {
     id: string;
     value: string;
     title: string;
-    unScheduled: boolean;
+    unScheduled?: boolean;
     notes: Note[];
   };
   handleSelectedNote: (id: string) => void;

@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -10,29 +9,33 @@ import {
 } from "@/components/ui/select";
 import { useAtomValue } from "jotai";
 import { folderAtom } from "@/atom/noteAtom";
+import { useFormContext } from "react-hook-form";
 
-interface FormFolderSelectProps {
-  setSelectFolder: (folder: string | undefined) => void;
-  newFolder: string;
-}
-
-const FormFolderSelect = ({
-  setSelectFolder,
-  newFolder,
-}: FormFolderSelectProps) => {
+const FormFolderSelect = () => {
   const folders = useAtomValue(folderAtom);
 
+  const { setValue, watch } = useFormContext();
+
+  const newFolder = watch("newFolder");
+  const selectedFolder = watch("selectedFolder");
+
   return (
-    <Select disabled={folders.length === 0 || newFolder.length > 0} onValueChange={(value) => {
-      if (value === "unselected") {
-        setSelectFolder(undefined);
-      } else {
-        setSelectFolder(value);
-      }
-    }}>
-
-
-
+    <Select
+      disabled={folders.length === 0 || (newFolder?.length ?? 0) > 0}
+      value={selectedFolder ?? "unselected"}
+      onValueChange={(value) => {
+        if (value === "unselected") {
+          setValue("selectedFolder", undefined);
+          setValue("folderName", "");
+        } else {
+          setValue("selectedFolder", value);
+          const matched = folders.find((f) => f.id === value);
+          if (matched) {
+            setValue("folderName", matched.folderName);
+          }
+        }
+      }}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a folder" />
       </SelectTrigger>

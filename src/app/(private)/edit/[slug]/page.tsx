@@ -7,7 +7,6 @@ export default async function EditNotePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // cookies();
 
   const { slug } = await params;
   const slugParts = slug.split("-");
@@ -25,6 +24,7 @@ export default async function EditNotePage({
         ...result.data,
         tags: result.data.tags.map((tag) => tag.name),
       }}
+      isEdit={true}
     />
   );
 }
