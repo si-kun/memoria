@@ -2,6 +2,7 @@ import {
   allNoteAtom,
   comingUpNoteAtom,
   folderAtom,
+  tagsAtom,
   todayNoteAtom,
   unscheduledNoteAtom,
 } from "@/atom/noteAtom";
@@ -14,7 +15,8 @@ import { getFolder } from "@/_server-actions/getFolder";
 import { getUnscheduled } from "@/_server-actions/note/getUnscheduled";
 import { getAllNote } from "@/_server-actions/getAllNote";
 import { useEffect } from "react";
-import { Folder, Note } from "@prisma/client";
+import { Folder, Note, Tag } from "@prisma/client";
+import { getTags } from "@/_server-actions/getTags";
 
 export const useFetchNotes = () => {
   const user = useAtomValue(userAtom);
@@ -23,6 +25,7 @@ export const useFetchNotes = () => {
   const setComingUpNotes = useSetAtom(comingUpNoteAtom);
   const setUnscheduledNotes = useSetAtom(unscheduledNoteAtom);
   const setFolder = useSetAtom(folderAtom);
+  const setTags = useSetAtom(tagsAtom);
 
   const fetchData = async () => {
     if (!user?.id) return;
@@ -35,6 +38,7 @@ export const useFetchNotes = () => {
       getComingupNotes(userId),
       getUnscheduled(userId),
       getFolder(userId),
+      getTags(userId),
     ]);
 
     const labels = [
@@ -43,6 +47,7 @@ export const useFetchNotes = () => {
       "comingUpNotes",
       "unscheduledNotes",
       "folder",
+      "tags",
     ] as const;
 
     result.forEach((res, index) => {
@@ -65,6 +70,9 @@ export const useFetchNotes = () => {
             break;
           case "folder":
             setFolder(data as Folder[]);
+            break;
+          case "tags":
+            setTags(data as Tag[]);
             break;
         }
       } else {

@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import AuthForm from "@/components/auth/AuthForm";
 import { signupLabelItems } from "./signupLabelItems";
 import { singupUser } from "@/_server-actions/signupUser";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const signupSchema = z.object({
   displayName: z.string().min(1, {message: "Display name is required"}),
   email: z.string().email({message: "Invalid email address"}),
-  password: z.string().min(8, {message: "Password must be at least 8 characters long"}),
-  avatar: z.instanceof(File).optional(),
+  password: z.string(),
+  avatar: z.any().optional(),
 })
 
 const SignupPage = () => {
@@ -31,12 +31,14 @@ const SignupPage = () => {
   const router = useRouter();
   const { signup } = authRepository();
 
-  const handleSignup = async () => {
+  const handleSignup: SubmitHandler<SignupData> = async (data) => {
     try {
-      const authResult = await signup(methods.getValues());
+      const authResult = await signup(data);
+      console.log(authResult);
 
       if (!authResult.success) {
         console.log(authResult.message);
+        return;
       }
 
       if (authResult.success && authResult.supabaseUserId) {
@@ -46,6 +48,7 @@ const SignupPage = () => {
         );
         if (!userResult.success) {
           console.log(userResult.message);
+          return;
         }
         router.replace("/");
       }
@@ -59,8 +62,10 @@ const SignupPage = () => {
       <AuthForm
         handleSignup={handleSignup}
         labelItems={signupLabelItems}
-        buttonText="Signup"
-        title="Signup"
+        buttonText="Sign Up"
+        title="Sign Up"
+        description="Create an account to get started."
+        isSignup
       />
     </FormProvider>
   );

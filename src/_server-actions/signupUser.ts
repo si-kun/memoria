@@ -20,6 +20,7 @@ export const singupUser = async(userId: string, signupData: SignupData) => {
         data: user,
     }
    }catch(error) {
+    console.error(error);
     return {
         success: false,
         message: "Failed to signup user",

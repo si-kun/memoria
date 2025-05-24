@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
 import { FormProvider, Path, PathValue, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import FormTagInput from "./FormTagInput";
@@ -28,12 +28,19 @@ interface NoteFormProps {
 }
 
 const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
-  const methods = useForm<NoteData>({
-    resolver: zodResolver(noteSchema),
-    defaultValues: {
+  const folders = useAtomValue(folderAtom);
+
+  const initialValues = useMemo(() => {
+    const matched = folders.find((f) => f.folderName === defaultValues.folderName)
+    return {
       ...defaultValues,
-      selectedFolder: ""
+      selectedFolder: matched?.id || "",
     }
+  },[defaultValues,folders])
+
+  const methods = useForm<NoteData, any, NoteData>({
+    resolver: zodResolver(noteSchema),
+    defaultValues: initialValues
   });
 
   const router = useRouter();
@@ -46,21 +53,10 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     formState: { errors },
   } = methods;
 
-  const folders = useAtomValue(folderAtom);
+
   const user = useAtomValue(userAtom);
   const userId = user?.id;
 
-  useEffect(() => {
-    console.log(defaultValues.folderName);
-
-    const matched = folders.find((f) => f.folderName === defaultValues.folderName)
-
-    setValue("newFolder", defaultValues.folderName);
-
-    if (matched) {
-      setValue("selectedFolder", matched.id);
-    }
-  }, [defaultValues.folderName, folders, setValue]);
   const unScheduled = watch("unScheduled");
 
   const handleToggleChange = <K extends Path<NoteData>>(key: K) => {
@@ -72,30 +68,28 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     return <div>Loading folders...</div>;
   }
 
-  const handleAddNote = async (data: NoteData) => {
-
-    if (userId) {
-      const result = await addNewNoteActions(data, userId);
-      console.log(result);
-
-      if (result.success) {
-        toast.success(result.message || "新規ノートの作成に成功しました");
-        router.replace("/");
-      } else {
-        toast.error(result.message || "新規ノートの作成に失敗しました");
+   const onSubmit = async (data: NoteData) => {
+    if (isEdit) {
+      // 更新処理
+      if (userId) {
+        const result = await updateNote(data, userId);
+        if (result.success) {
+          toast.success(result.message || "更新に成功しました");
+          router.replace("/");
+        } else {
+          toast.error(result.message || "更新に失敗しました");
+        }
       }
-    }
-  };
-
-  const handleUpdate = async (data: NoteData) => {
-
-    if (userId) {
-      const result = await updateNote(data, userId);
-      if (result.success) {
-        toast.success(result.message || "更新に成功しました");
-        router.replace("/");
-      } else {
-        toast.error(result.message || "更新に失敗しました");
+    } else {
+      // 新規作成処理
+      if (userId) {
+        const result = await addNewNoteActions(data, userId);
+        if (result.success) {
+          toast.success(result.message || "新規ノートの作成に成功しました");
+          router.replace("/");
+        } else {
+          toast.error(result.message || "新規ノートの作成に失敗しました");
+        }
       }
     }
   };
@@ -103,7 +97,7 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={handleSubmit(isEdit ? handleUpdate : handleAddNote)}
+        onSubmit={handleSubmit(onSubmit)}
         className="w-full h-screen flex gap-10 overflow-hidden p-10 pb-30"
       >
         {/* 左コンテンツ */}

@@ -12,27 +12,42 @@ import { Button } from "../ui/button";
 import { signupLabelItem } from "@/app/(auth)/signup/signupLabelItems";
 import { signinLabelItemType } from "@/app/(auth)/signin/signinLabelItems";
 import AvatarComponent from "../avatar/AvatarComponent";
-import { useFormContext, SubmitHandler, FieldValues } from "react-hook-form";
+import {
+  FieldValues,
+  Path,
+  SubmitHandler,
+  useFormContext,
+} from "react-hook-form";
+import Link from "next/link";
 
-interface AuthFormProps {
-  handleSignup?: SubmitHandler<FieldValues>;
-  handleSignin?: SubmitHandler<FieldValues>;
+interface AuthFormProps<T extends FieldValues> {
+  handleSignup?: SubmitHandler<T>;
+  handleSignin?: SubmitHandler<T>;
   labelItems: signupLabelItem[] | signinLabelItemType[];
   buttonText: string;
   title: string;
+  description: string;
+  isSignup?: boolean;
 }
 
-const AuthForm = ({
+const AuthForm = <T extends FieldValues>({
   handleSignup,
   handleSignin,
   labelItems,
   buttonText,
   title,
-}: AuthFormProps) => {
+  description,
+  isSignup,
+}: AuthFormProps<T>) => {
   const {
     register,
     handleSubmit,
-  } = useFormContext();
+    formState: { errors, isSubmitting },
+  } = useFormContext<T>();
+
+  const onSubmit: SubmitHandler<T> = isSignup
+    ? handleSignup || (() => Promise.resolve())
+    : handleSignin || (() => Promise.resolve());
 
   return (
     <Card className="w-[40%]">
@@ -40,23 +55,55 @@ const AuthForm = ({
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>{title}</CardTitle>
-            <CardDescription>Create an account to get started.</CardDescription>
+            <CardDescription>{description}</CardDescription>
           </div>
           <AvatarComponent />
         </div>
       </CardHeader>
-      <form onSubmit={handleSubmit((handleSignup ?? handleSignin)!)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <CardContent>
           <div className="grid w-full items-center gap-4">
             {labelItems.map((item) => (
-              <InputLabel key={item.name} {...item} {...register(item.name)} />
+              <div key={item.name}>
+                <InputLabel {...item} {...register(item.name as Path<T>)} />
+                {errors[item.name as Path<T>] && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors[item.name as Path<T>]?.message as string}
+                  </p>
+                )}
+              </div>
             ))}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button type="submit" className="cursor-pointer">
-            {buttonText}
-          </Button>
+        <CardFooter className="flex justify-end w-full">
+          {buttonText === "Sign In" && (
+            <div className="flex items-center justify-between gap-2 w-full">
+              <Button variant="link" className="cursor-pointer" asChild>
+                <Link href="/signup">Don't have an account?</Link>
+              </Button>
+              <Button
+                disabled={isSubmitting}
+                type="submit"
+                className="cursor-pointer"
+              >
+                {buttonText}
+              </Button>
+            </div>
+          )}
+          {buttonText === "Sign Up" && (
+            <div className="flex items-center justify-between gap-2 w-full">
+              <Button variant="link" className="cursor-pointer" asChild>
+                <Link href="/signin">Already have an account?</Link>
+              </Button>
+              <Button
+                disabled={isSubmitting}
+                type="submit"
+                className="cursor-pointer"
+              >
+                {buttonText}
+              </Button>
+            </div>
+          )}
         </CardFooter>
       </form>
     </Card>

@@ -66,6 +66,7 @@ const SigninPage = () => {
         handleSignin={handleSignin}
         buttonText="Sign In"
         title="Sign In"
+        description="Sign in to your account to continue"
       />
     </FormProvider>
   );

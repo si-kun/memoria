@@ -32,7 +32,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { useAtomValue, useSetAtom } from "jotai";
-import { folderAtom } from "@/atom/noteAtom";
+import { folderAtom, tagsAtom } from "@/atom/noteAtom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,8 +72,9 @@ const items = [
 ];
 
 const SidebarComponent = () => {
-  const folders = useAtomValue(folderAtom);
   const user = useSetAtom(userAtom);
+  const folders = useAtomValue(folderAtom);
+  const tags = useAtomValue(tagsAtom);
 
   const handleSignout = async() => {
     const result = await supabase.auth.signOut()
@@ -114,7 +115,7 @@ const SidebarComponent = () => {
                 <SidebarMenuItem className="list-none">
                   <SidebarMenuButton asChild>
                     <CollapsibleTrigger className="font-semibold mb-1 w-full">
-                      Folder
+                      Folders
                     </CollapsibleTrigger>
                   </SidebarMenuButton>
 
@@ -136,6 +137,36 @@ const SidebarComponent = () => {
               </Collapsible>
             </SidebarMenu>
           </SidebarGroup>
+          <Separator />
+          <SidebarGroup>
+            <SidebarMenu>
+              <Collapsible className="group/collapsible">
+                <SidebarMenuItem className="list-none">
+                  <SidebarMenuButton asChild>
+                    <CollapsibleTrigger className="font-semibold mb-1 w-full">
+                      Tags
+                    </CollapsibleTrigger>
+                  </SidebarMenuButton>
+
+                  {tags.map((tag) => (
+                    <CollapsibleContent key={tag.id}>
+                      <SidebarMenuSub>
+                        <SidebarMenuButton asChild>
+                          <SidebarMenuSubItem className="pl-2">
+                            {tag.name}
+                            <SidebarMenuBadge>
+                              ({tag._count.note})
+                            </SidebarMenuBadge>
+                          </SidebarMenuSubItem>
+                        </SidebarMenuButton>
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  ))}
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </SidebarGroup>
+
         </SidebarContent>
         <SidebarFooter className="w-full">
           <SidebarMenu className="w-full">
