@@ -4,10 +4,7 @@ import { NoteData } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@/utils/prisma/prismaClient";
 
-export const addNewNoteActions = async (
-  addNote: NoteData,
-  userId: string,
-) => {
+export const addNewNoteActions = async (addNote: NoteData, userId: string) => {
   const {
     title,
     content,
@@ -16,7 +13,9 @@ export const addNewNoteActions = async (
     startDate,
     endDate,
     unScheduled,
-    tags,
+    tags = [],
+    deletedAt = null,
+    favorite,
   } = addNote;
 
   try {
@@ -48,25 +47,37 @@ export const addNewNoteActions = async (
         userId,
         unScheduled,
         public: isPublic,
-        startDate,
-        endDate,
+        startDate: startDate ?? null,
+        endDate: endDate ?? null,
+        deletedAt: deletedAt ?? null,
+        favorite,
       },
     });
 
     // タグの作成
     for (const tag of tags) {
-        await prisma.tag.upsert({
-            where: {
-                name_noteId: {
-                    name: tag,
-                    noteId: newNote.id,
-                }
-            },
-            update: {},
+      const createdTag = await prisma.tag.upsert({
+        where: {
+          name_userId: {
+            name: tag,
+            userId,
+          },
+        },
+        update: {},
         create: {
           id: uuidv4(),
           name: tag,
+          userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await prisma.tagOnNote.create({
+        data: {
           noteId: newNote.id,
+          tagId: createdTag.id,
         },
       });
     }
@@ -77,7 +88,7 @@ export const addNewNoteActions = async (
       data: newNote,
     };
   } catch (error) {
-    console.error("Note creation error:", error);
+    console.error("Note creation error:", JSON.stringify(error, null, 2));
     return {
       success: false,
       error: "Failed to add new note",

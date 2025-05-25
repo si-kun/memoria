@@ -11,7 +11,11 @@ export const getNoteDetail = async (noteId: string) => {
       include: {
         tags: {
           select: {
-            name: true,
+            tag: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
         folder: true,
@@ -27,7 +31,7 @@ export const getNoteDetail = async (noteId: string) => {
 
     const notoData = {
       ...result,
-      tags: result.tags,
+      tags: result.tags.map((t) => t.tag.name),
       folderName: result.folder?.folderName ?? "",
     }
 

@@ -1,10 +1,10 @@
 "use server";
 
-import { NoteDataUpdate } from "@/types";
+import { NoteData } from "@/types";
 import { prisma } from "@/utils/prisma/prismaClient";
 import { v4 as uuidv4 } from "uuid";
 
-export const updateNote = async (note: NoteDataUpdate, userId: string) => {
+export const updateNote = async (note: NoteData, userId: string) => {
   try {
     const {
       id,
@@ -16,6 +16,7 @@ export const updateNote = async (note: NoteDataUpdate, userId: string) => {
       tags,
       startDate,
       endDate,
+      favorite,
     } = note;
 
     const folder =
@@ -48,46 +49,52 @@ export const updateNote = async (note: NoteDataUpdate, userId: string) => {
         unScheduled,
         startDate,
         endDate,
+        favorite,
       },
     });
 
-    // const tagNames = tags.map(tag => tag.name);
-    const existingTags = await prisma.tag.findMany({
-        where: {noteId: id},
+    await prisma.tagOnNote.deleteMany({
+      where: {
+        noteId: id,
+      }
     })
 
-    const newTagName = new Set(tags);
-    const oldTagName = new Set(existingTags.map(tag => tag.name));
-
-    const tagsToDelete = [...oldTagName].filter((tag) => !newTagName.has(tag));
-
-    await prisma.tag.deleteMany({
-      where: { noteId: id, name: { in: tagsToDelete } },
-    });
 
     for (const tag of tags) {
-      await prisma.tag.upsert({
+      const createdTag = await prisma.tag.upsert({
         where: {
-          name_noteId: {
+          name_userId: {
             name: tag,
-            noteId: id,
+            userId,
           },
         },
         update: {},
         create: {
           id: uuidv4(),
           name: tag,
+          userId,
+        },
+        select: {
+          id: true, // ← これが大事！！
+        },
+      });
+    
+      await prisma.tagOnNote.create({
+        data: {
           noteId: id,
+          tagId: createdTag.id,
         },
       });
     }
+    
 
     return {
-        success: true,
-        message: "Note updated successfully",
-        data: updatedNote,
+      success: true,
+      message: "Note updated successfully",
+      data: updatedNote,
     };
   } catch (error) {
+    console.error(error);
     return {
       success: false,
       error: error,

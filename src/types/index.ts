@@ -44,5 +44,7 @@ export interface NoteData {
     newFolder?: string;
     public: boolean;
     content: string;
+    favorite: boolean;
+    deletedAt: Date | null;
 }
 

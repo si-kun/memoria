@@ -7,6 +7,7 @@ interface FormTagInputProps {
 }
 
 const FormTagInput = ({ defaultValues }: FormTagInputProps) => {
+  console.log(defaultValues)
 
   const {setValue,watch} = useFormContext();
 
@@ -16,6 +17,8 @@ const FormTagInput = ({ defaultValues }: FormTagInputProps) => {
 
   useEffect(() => {
     if (defaultValues.length > 0) {
+      const joined = defaultValues.join(",");
+      setTagInput(joined); // ← これを追加！
       setValue("tags", defaultValues);
     }
   }, [defaultValues, setValue]);

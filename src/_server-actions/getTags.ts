@@ -4,18 +4,25 @@ import { prisma } from "@/utils/prisma/prismaClient";
 
 export const getTags = async (userId: string) => {
     try {
+
+        //未使用のタグをクリーンアップ
+        await prisma.tag.deleteMany({
+            where: {
+                userId,
+                notes: {
+                    none: {},
+                }
+            }
+        })
+
         const tags = await prisma.tag.findMany({
             where: {
-                note: {
-                    is: {
-                        userId,
-                    }
-                },
+                userId,
             },
             include: {
                 _count: {
                     select: {
-                        note: true,
+                        notes: true,
                     }
                 }
             }

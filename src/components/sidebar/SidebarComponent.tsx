@@ -41,6 +41,7 @@ import {
 } from "../ui/dropdown-menu";
 import { userAtom } from "@/atom/userAtom";
 import { supabase } from "@/utils/supabase/client";
+import { Folder, Tag } from "@prisma/client";
 
 // Menu items.
 const items = [
@@ -76,16 +77,16 @@ const SidebarComponent = () => {
   const folders = useAtomValue(folderAtom);
   const tags = useAtomValue(tagsAtom);
 
-  const handleSignout = async() => {
-    const result = await supabase.auth.signOut()
+  const handleSignout = async () => {
+    const result = await supabase.auth.signOut();
 
-    if(result.error) {
-      console.log(result.error)
-      return
+    if (result.error) {
+      console.log(result.error);
+      return;
     }
 
-    user(null)
-  }
+    user(null);
+  };
 
   return (
     <SidebarProvider>
@@ -119,14 +120,14 @@ const SidebarComponent = () => {
                     </CollapsibleTrigger>
                   </SidebarMenuButton>
 
-                  {folders.map((folder) => (
+                  {(folders as (Folder & {_count: {notes: number}})[]).map((folder) => (
                     <CollapsibleContent key={folder.id}>
                       <SidebarMenuSub>
                         <SidebarMenuButton asChild>
                           <SidebarMenuSubItem className="pl-2">
                             {folder.folderName}
                             <SidebarMenuBadge>
-                              ({folder.notes.length})
+                              ({folder._count.notes})
                             </SidebarMenuBadge>
                           </SidebarMenuSubItem>
                         </SidebarMenuButton>
@@ -148,25 +149,26 @@ const SidebarComponent = () => {
                     </CollapsibleTrigger>
                   </SidebarMenuButton>
 
-                  {tags.map((tag) => (
-                    <CollapsibleContent key={tag.id}>
-                      <SidebarMenuSub>
-                        <SidebarMenuButton asChild>
-                          <SidebarMenuSubItem className="pl-2">
-                            {tag.name}
-                            <SidebarMenuBadge>
-                              ({tag._count.note})
-                            </SidebarMenuBadge>
-                          </SidebarMenuSubItem>
-                        </SidebarMenuButton>
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  ))}
+                  {(tags as (Tag & { _count: { notes: number } })[]).map(
+                    (tag) => (
+                      <CollapsibleContent key={tag.id}>
+                        <SidebarMenuSub>
+                          <SidebarMenuButton asChild>
+                            <SidebarMenuSubItem className="pl-2">
+                              {tag.name}
+                              <SidebarMenuBadge>
+                                ({tag._count.notes})
+                              </SidebarMenuBadge>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuButton>
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )
+                  )}
                 </SidebarMenuItem>
               </Collapsible>
             </SidebarMenu>
           </SidebarGroup>
-
         </SidebarContent>
         <SidebarFooter className="w-full">
           <SidebarMenu className="w-full">

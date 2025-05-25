@@ -51,6 +51,7 @@ model Note {
   endDate DateTime?
   unScheduled Boolean @default(false)
   favorite Boolean @default(false)
+  deletedAt DateTime?
   tags TagOnNote[]
 
   @@unique([title, userId])

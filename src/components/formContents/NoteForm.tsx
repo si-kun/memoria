@@ -28,19 +28,22 @@ interface NoteFormProps {
 }
 
 const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
+  console.log(defaultValues)
   const folders = useAtomValue(folderAtom);
 
   const initialValues = useMemo(() => {
-    const matched = folders.find((f) => f.folderName === defaultValues.folderName)
+    const matched = folders.find(
+      (f) => f.folderName === defaultValues.folderName
+    );
     return {
       ...defaultValues,
       selectedFolder: matched?.id || "",
-    }
-  },[defaultValues,folders])
+    };
+  }, [defaultValues, folders]);
 
   const methods = useForm<NoteData, any, NoteData>({
     resolver: zodResolver(noteSchema),
-    defaultValues: initialValues
+    defaultValues: initialValues,
   });
 
   const router = useRouter();
@@ -53,7 +56,6 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     formState: { errors },
   } = methods;
 
-
   const user = useAtomValue(userAtom);
   const userId = user?.id;
 
@@ -64,16 +66,23 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     setValue(key, !current as PathValue<NoteData, K>);
   };
 
-  if (folders.length === 0) {
-    return <div>Loading folders...</div>;
-  }
+  const onSubmit = async (data: NoteData) => {
+    if (unScheduled) {
+      data.startDate = null;
+      data.endDate = null;
+    }
 
-   const onSubmit = async (data: NoteData) => {
+    const { selectedFolder, newFolder, ...dbData } = data;
+    // selectedFolder, newFolder を使わないなら Lint 対策で明示破棄
+    void selectedFolder;
+    void newFolder;
+
     if (isEdit) {
       // 更新処理
       if (userId) {
-        const result = await updateNote(data, userId);
+        const result = await updateNote(dbData, userId);
         if (result.success) {
+          console.log(result);
           toast.success(result.message || "更新に成功しました");
           router.replace("/");
         } else {
@@ -83,8 +92,9 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     } else {
       // 新規作成処理
       if (userId) {
-        const result = await addNewNoteActions(data, userId);
+        const result = await addNewNoteActions(dbData, userId);
         if (result.success) {
+          console.log(result);
           toast.success(result.message || "新規ノートの作成に成功しました");
           router.replace("/");
         } else {
@@ -94,10 +104,15 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
     }
   };
 
+  // バリデーションエラーをキャッチする関数を追加
+  const onError = (errors: any) => {
+    console.log("バリデーションエラーが発生しました:", errors);
+  };
+
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, onError)}
         className="w-full h-screen flex gap-10 overflow-hidden p-10 pb-30"
       >
         {/* 左コンテンツ */}

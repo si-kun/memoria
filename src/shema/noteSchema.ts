@@ -13,11 +13,12 @@ export const noteSchema = z.object({
     //フォルダ
     newFolder: z.string().optional(),
     selectedFolder: z.string().optional(),
-    
     folderName: z.string().min(1, {message: "Folder is required"}).max(12, {message: "Folder is required maximum 12 character"}).optional(),
     tags: z.array(z.string()),
     unScheduled: z.boolean(),
     startDate: z.date().nullable(),
     endDate: z.date().nullable(),
     public: z.boolean(),
+    favorite: z.boolean().optional(),
+    deletedAt: z.date().nullable().optional(),
   });
