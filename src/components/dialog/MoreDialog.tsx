@@ -21,22 +21,51 @@ import { deleteManyNoteCard } from "@/_server-actions/note/deleteManyNoteCard";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
 import { useFetchNotes } from "@/hooks/useFetchNotes";
+import MoreDialogSort from "../select/MoreDialogSort";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface MoreDialogProps {
   moreDialog: boolean;
   moreDialogCategory: MORE_CATEGORY;
   setMoreDialog: (moreDialog: boolean) => void;
   handleSelectedNote: (id: string) => void;
+  handleCloseMoreDialog: () => void;
 }
+
+export type SortOptionType =
+  "createdAt-asc"|
+  "createdAt-desc"|
+  "updatedAt-asc"|
+  "updatedAt-desc"|
+  "startDate-asc"|
+  "startDate-desc"|
+  "endDate-asc"|
+  "endDate-desc"
+
+  type SortableNoteFields = "createdAt" | "updatedAt" | "startDate" | "endDate"
+
+
+  export const SORT_OPTIONS: SortOptionType[] = [
+    "createdAt-desc",
+    "createdAt-asc",
+    "updatedAt-desc",
+    "updatedAt-asc",
+    "startDate-asc",
+    "startDate-desc",
+    "endDate-asc",
+    "endDate-desc",
+  ];
 
 const MoreDialog = ({
   moreDialog,
   moreDialogCategory,
   setMoreDialog,
   handleSelectedNote,
+  handleCloseMoreDialog,
 }: MoreDialogProps) => {
   const [categoryNotes, setCategoryNotes] = useState<Note[]>([]);
   const [selectedCard, setSelectedCard] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState<SortOptionType>("createdAt-desc");
 
   const todayNotes = useAtomValue(todayNoteAtom);
   const comingUpNotes = useAtomValue(comingUpNoteAtom);
@@ -45,18 +74,35 @@ const MoreDialog = ({
   const { refetchNotes } = useFetchNotes();
 
   useEffect(() => {
+
+    let notes: Note[] = []
+
     switch (moreDialogCategory) {
       case "todayNotes":
-        setCategoryNotes(todayNotes);
+        notes = [...todayNotes]
         break;
       case "comingUpNotes":
-        setCategoryNotes(comingUpNotes);
+        notes = [...comingUpNotes]
         break;
       case "unscheduledNotes":
-        setCategoryNotes(unscheduledNotes);
+        notes = [...unscheduledNotes]
         break;
+        default:
+          const _exhaustiveCheck: never = moreDialogCategory
+          throw new Error(`${_exhaustiveCheck}は存在しません`)
     }
-  }, [moreDialogCategory, todayNotes, comingUpNotes, unscheduledNotes]);
+
+    const [field, order] = sortOption.split("-") as [SortableNoteFields, "asc" | "desc"]
+    const sorted = notes.sort((a,b) => {
+
+      const aValue = a[field] ? new Date(a[field]).getTime() : 0
+      const bValue = b[field] ? new Date(b[field]).getTime() : 0
+
+      return order === "asc" ? aValue - bValue : bValue - aValue
+    })
+    setCategoryNotes(sorted)
+
+  }, [moreDialogCategory, todayNotes, comingUpNotes, unscheduledNotes, sortOption]);
 
   useEffect(() => {
     if(!moreDialog) {
@@ -92,17 +138,17 @@ const MoreDialog = ({
     <Dialog open={moreDialog}>
       <DialogContent className="w-[60%] h-[70%] flex flex-col">
         <DialogHeader className="shrink-0">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <DialogTitle>{moreDialogCategory}</DialogTitle>
-            {selectedCard.length > 0 && (
-              <div className="flex items-center gap-2">
+            <DialogDescription className="sr-only">選択したノートを表示しています</DialogDescription>
+            <MoreDialogSort sortOption={sortOption} setSortOption={setSortOption} />
+              <div className={`flex items-center gap-2 ${selectedCard.length !== 0  ? "": ""}`}>
                 <span>{selectedCard.length}件選択中</span>
                 <Button variant={"destructive"} onClick={handleDeleteManyCard}>
                   削除
                 </Button>
               </div>
-            )}
-            <DialogClose asChild onClick={() => setMoreDialog(false)}>
+            <DialogClose asChild onClick={handleCloseMoreDialog}>
               <Button variant="outline">Close</Button>
             </DialogClose>
           </div>

@@ -5,6 +5,14 @@ import { prisma } from "@/utils/prisma/prismaClient";
 export const deleteManyNoteCard = async (ids: string[]) => {
     try {
 
+        await prisma.tagOnNote.deleteMany({
+            where: {
+                noteId: {
+                    in: ids,
+                }
+            }
+        })
+
         await prisma.note.deleteMany({
             where: {
                 id: {

@@ -42,6 +42,7 @@ import {
 import { userAtom } from "@/atom/userAtom";
 import { supabase } from "@/utils/supabase/client";
 import { Folder, Tag } from "@prisma/client";
+import { ScrollArea } from "../ui/scroll-area";
 
 // Menu items.
 const items = [
@@ -90,7 +91,7 @@ const SidebarComponent = () => {
 
   return (
     <SidebarProvider>
-      <Sidebar className="h-full w-64">
+      <Sidebar className="h-full w-64 relative">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -109,68 +110,79 @@ const SidebarComponent = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <Separator />
-          <SidebarGroup>
-            <SidebarMenu>
-              <Collapsible className="group/collapsible">
-                <SidebarMenuItem className="list-none">
-                  <SidebarMenuButton asChild>
-                    <CollapsibleTrigger className="font-semibold mb-1 w-full">
-                      Folders
-                    </CollapsibleTrigger>
-                  </SidebarMenuButton>
+          <div className="px-2">
+            <Separator className="px-2" />
+          </div>
 
-                  {(folders as (Folder & {_count: {notes: number}})[]).map((folder) => (
-                    <CollapsibleContent key={folder.id}>
-                      <SidebarMenuSub>
-                        <SidebarMenuButton asChild>
-                          <SidebarMenuSubItem className="pl-2">
-                            {folder.folderName}
-                            <SidebarMenuBadge>
-                              ({folder._count.notes})
-                            </SidebarMenuBadge>
-                          </SidebarMenuSubItem>
-                        </SidebarMenuButton>
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  ))}
-                </SidebarMenuItem>
-              </Collapsible>
-            </SidebarMenu>
-          </SidebarGroup>
-          <Separator />
-          <SidebarGroup>
-            <SidebarMenu>
-              <Collapsible className="group/collapsible">
-                <SidebarMenuItem className="list-none">
-                  <SidebarMenuButton asChild>
-                    <CollapsibleTrigger className="font-semibold mb-1 w-full">
-                      Tags
-                    </CollapsibleTrigger>
-                  </SidebarMenuButton>
+          <ScrollArea className="h-[calc(100vh-20rem)]">
+            <SidebarGroup>
+              <SidebarMenu>
+                <Collapsible className="group/collapsible">
+                  <SidebarMenuItem className="list-none">
+                    <SidebarMenuButton asChild>
+                      <CollapsibleTrigger className="font-semibold mb-1 w-full">
+                        Folders
+                      </CollapsibleTrigger>
+                    </SidebarMenuButton>
 
-                  {(tags as (Tag & { _count: { notes: number } })[]).map(
-                    (tag) => (
-                      <CollapsibleContent key={tag.id}>
-                        <SidebarMenuSub>
-                          <SidebarMenuButton asChild>
-                            <SidebarMenuSubItem className="pl-2">
-                              {tag.name}
-                              <SidebarMenuBadge>
-                                ({tag._count.notes})
-                              </SidebarMenuBadge>
-                            </SidebarMenuSubItem>
-                          </SidebarMenuButton>
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    )
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
-            </SidebarMenu>
-          </SidebarGroup>
+                    <ScrollArea className="max-h-[150px]">
+                      {(
+                        folders as (Folder & { _count: { notes: number } })[]
+                      ).map((folder) => (
+                        <CollapsibleContent key={folder.id}>
+                          <SidebarMenuSub>
+                            <SidebarMenuButton asChild>
+                              <SidebarMenuSubItem className="pl-2">
+                                {folder.folderName}
+                                <SidebarMenuBadge>
+                                  ({folder._count.notes})
+                                </SidebarMenuBadge>
+                              </SidebarMenuSubItem>
+                            </SidebarMenuButton>
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      ))}
+                    </ScrollArea>
+                  </SidebarMenuItem>
+                </Collapsible>
+              </SidebarMenu>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarMenu>
+                <Collapsible className="group/collapsible">
+                  <SidebarMenuItem className="list-none">
+                    <SidebarMenuButton asChild>
+                      <CollapsibleTrigger className="font-semibold mb-1 w-full  cursor-pointer">
+                        Tags
+                      </CollapsibleTrigger>
+                    </SidebarMenuButton>
+
+                      {(tags as (Tag & { _count: { notes: number } })[]).map(
+                        (tag) => (
+                          <CollapsibleContent key={tag.id}>
+                            <SidebarMenuSub className="cursor-pointer">
+                              <SidebarMenuButton asChild>
+                                <SidebarMenuSubItem className="pl-2">
+                                  {tag.name}
+                                  <SidebarMenuBadge>
+                                    ({tag._count.notes})
+                                  </SidebarMenuBadge>
+                                </SidebarMenuSubItem>
+                              </SidebarMenuButton>
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        )
+                      )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              </SidebarMenu>
+            </SidebarGroup>
+
+          </ScrollArea>
         </SidebarContent>
-        <SidebarFooter className="w-full">
+
+        <SidebarFooter className="w-full absolute bottom-0 backdrop-blur-md cursor-pointer">
           <SidebarMenu className="w-full">
             <SidebarMenuItem className="w-full">
               <DropdownMenu>

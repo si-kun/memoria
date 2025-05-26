@@ -40,6 +40,7 @@ export const getNoteDetail = async (noteId: string) => {
       data: notoData,
     };
   } catch (error) {
+    console.error("Failed to get note detail:", JSON.stringify(error, null, 2));
     return {
       success: false,
       message: "Failed to edit note",

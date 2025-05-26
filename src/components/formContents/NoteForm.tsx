@@ -21,6 +21,8 @@ import toast from "react-hot-toast";
 import { addNewNoteActions } from "@/_server-actions/addNewNoteActions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { noteSchema } from "@/shema/noteSchema";
+import { Star } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface NoteFormProps {
   defaultValues: NoteData;
@@ -28,7 +30,7 @@ interface NoteFormProps {
 }
 
 const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
-  console.log(defaultValues)
+  console.log(defaultValues);
   const folders = useAtomValue(folderAtom);
 
   const initialValues = useMemo(() => {
@@ -149,6 +151,14 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
             <FormFoldersSelect />
           </Card>
           <div className="flex items-center justify-end gap-5">
+            <Button
+              type="button"
+              variant={watch("favorite") ? "default" : "outline"}
+              onClick={() => handleToggleChange("favorite")}
+              className={`${watch("favorite") ? "text-yellow-500 bg-yellow-50 hover:bg-yellow-50" : ""}`}
+            >
+              <Star className={`${watch("favorite") ? "text-yellow-500 bg-yellow-50" : ""}`} />
+            </Button>
             <PublicCheck
               checked={watch("public")}
               onChange={() => handleToggleChange("public")}

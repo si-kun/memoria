@@ -17,7 +17,6 @@ export type MORE_CATEGORY =
   | "todayNotes"
   | "comingUpNotes"
   | "unscheduledNotes"
-  | null;
 
 export default function Home() {
   const user = useAtomValue(userAtom);
@@ -26,7 +25,7 @@ export default function Home() {
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [moreDialogCategory, setMoreDialogCategory] =
-    useState<MORE_CATEGORY>(null);
+    useState<MORE_CATEGORY>("todayNotes");
 
   useEffect(() => {
     console.log(moreDialogCategory);
@@ -60,6 +59,11 @@ export default function Home() {
     }
   };
 
+  const handleCloseMoreDialog = () => {
+    setMoreDialog(false);
+    setMoreDialogCategory("todayNotes");
+  }
+
   return (
     <div className="w-full h-full flex justify-center items-center">
       {/* コンテナ */}
@@ -91,6 +95,7 @@ export default function Home() {
           moreDialogCategory={moreDialogCategory}
           setMoreDialog={setMoreDialog}
           handleSelectedNote={handleSelectedNote}
+          handleCloseMoreDialog={handleCloseMoreDialog}
         />
       )}
     </div>

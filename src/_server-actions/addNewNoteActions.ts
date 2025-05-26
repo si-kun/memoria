@@ -50,37 +50,37 @@ export const addNewNoteActions = async (addNote: NoteData, userId: string) => {
         startDate: startDate ?? null,
         endDate: endDate ?? null,
         deletedAt: deletedAt ?? null,
-        favorite,
+        favorite: favorite ?? false,
       },
     });
 
-    // タグの作成
-    for (const tag of tags) {
-      const createdTag = await prisma.tag.upsert({
-        where: {
-          name_userId: {
+    await Promise.all(
+      tags.map(async (tag) => {
+        const createdTag = await prisma.tag.upsert({
+          where: {
+            name_userId: {
+              name: tag,
+              userId,
+            },
+          },
+          update: {},
+          create: {
+            id: uuidv4(),
             name: tag,
             userId,
           },
-        },
-        update: {},
-        create: {
-          id: uuidv4(),
-          name: tag,
-          userId,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await prisma.tagOnNote.create({
-        data: {
-          noteId: newNote.id,
-          tagId: createdTag.id,
-        },
-      });
-    }
+          select: {
+            id: true,
+          },
+        });
+        await prisma.tagOnNote.create({
+          data: {
+            noteId: newNote.id,
+            tagId: createdTag.id,
+          },
+        });
+      })
+    );
 
     return {
       success: true,
