@@ -18,8 +18,10 @@ interface MoreDialogSortProps {
 
 const MoreDialogSort = ({ sortOption, setSortOption }: MoreDialogSortProps) => {
   return (
-    <Select   value={sortOption} // ← これ必要
-    onValueChange={(value) => setSortOption(value as SortOptionType)}>
+    <Select
+      value={sortOption} // ← これ必要
+      onValueChange={(value) => setSortOption(value as SortOptionType)}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a sort" />
       </SelectTrigger>

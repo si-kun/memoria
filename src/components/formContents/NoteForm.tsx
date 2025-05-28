@@ -150,20 +150,36 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
             </div>
             <FormFoldersSelect />
           </Card>
-          <div className="flex items-center justify-end gap-5">
+          <div className="flex items-center gap-2">
             <Button
               type="button"
-              variant={watch("favorite") ? "default" : "outline"}
+              variant={"ghost"}
               onClick={() => handleToggleChange("favorite")}
-              className={`${watch("favorite") ? "text-yellow-500 bg-yellow-50 hover:bg-yellow-50" : ""}`}
+              className={`${
+                watch("favorite")
+                  ? "text-yellow-500 bg-yellow-50 hover:bg-yellow-50"
+                  : ""
+              } transition-all duration-300`}
             >
-              <Star className={`${watch("favorite") ? "text-yellow-500 bg-yellow-50" : ""}`} />
+              <Star
+                className={`${
+                  watch("favorite")
+                    ? "text-yellow-500 bg-yellow-50"
+                    : ""
+                }`}
+              />
+              <span className={`${watch("favorite") ? "fill-yellow-500" : ""}`}>
+                {watch("favorite") ? "Favorite" : "Unfavorite"}
+              </span>
             </Button>
-            <PublicCheck
-              checked={watch("public")}
-              onChange={() => handleToggleChange("public")}
-            />
-            <NoteSubmitButton />
+
+            <div className="ml-auto flex items-center gap-2">
+              <PublicCheck
+                checked={watch("public")}
+                onChange={() => handleToggleChange("public")}
+              />
+              <NoteSubmitButton />
+            </div>
           </div>
 
           {errors.title || errors.content ? (

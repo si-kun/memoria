@@ -1,4 +1,4 @@
-import { Note, Tag } from "@prisma/client";
+import { Folder, Note, Tag } from "@prisma/client";
 
 export interface AuthBaseData {
     email: string;
@@ -48,3 +48,14 @@ export interface NoteData {
     deletedAt: Date | null;
 }
 
+export interface FolderWithCount extends Folder {
+    _count: {
+        notes: number;
+    }
+}
+
+export interface TagWithCount extends Tag {
+    _count: {
+        notes: number;
+    }
+}

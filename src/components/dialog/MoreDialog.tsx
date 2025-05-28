@@ -32,20 +32,9 @@ interface MoreDialogProps {
   handleCloseMoreDialog: () => void;
 }
 
-export type SortOptionType =
-  "createdAt-asc"|
-  "createdAt-desc"|
-  "updatedAt-asc"|
-  "updatedAt-desc"|
-  "startDate-asc"|
-  "startDate-desc"|
-  "endDate-asc"|
-  "endDate-desc"
-
   type SortableNoteFields = "createdAt" | "updatedAt" | "startDate" | "endDate"
 
-
-  export const SORT_OPTIONS: SortOptionType[] = [
+  export const SORT_OPTIONS = [
     "createdAt-desc",
     "createdAt-asc",
     "updatedAt-desc",
@@ -54,7 +43,9 @@ export type SortOptionType =
     "startDate-desc",
     "endDate-asc",
     "endDate-desc",
-  ];
+  ] as const;
+
+ export type SortOptionType = typeof SORT_OPTIONS[number]
 
 const MoreDialog = ({
   moreDialog,

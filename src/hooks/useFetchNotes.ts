@@ -74,6 +74,9 @@ export const useFetchNotes = () => {
           case "tags":
             setTags(data as Tag[]);
             break;
+          default:
+            const _exhaustiveCheck: never = label;
+            throw new Error(`${_exhaustiveCheck}は存在しません`);
         }
       } else {
         console.error(`${label}→失敗`, res.reason);
