@@ -9,6 +9,7 @@ export const getTodayNotes = async (userId: string) => {
       where: {
         userId,
         unScheduled: false,
+        deletedAt: null,
         startDate: {
           gte: startOfDay(new Date()),
           lte: endOfDay(new Date()),

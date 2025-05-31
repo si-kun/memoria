@@ -9,6 +9,7 @@ export const getComingupNotes = async(userId: string) => {
             where: {
                 userId,
                 unScheduled: false,
+                deletedAt: null,
                 OR: [
 
                     {

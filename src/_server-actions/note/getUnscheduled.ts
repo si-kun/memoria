@@ -8,6 +8,7 @@ export const getUnscheduled = async(userId: string) => {
         where: {
             userId,
             unScheduled: true,
+            deletedAt: null,
         },
         orderBy: {
             createdAt: "desc",

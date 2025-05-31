@@ -1,15 +1,16 @@
-import React, { Dispatch} from "react";
+import React, { Dispatch } from "react";
 import { Card } from "../ui/card";
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
-import CardItem from "./CardItem";
 import { Button } from "../ui/button";
 import { Note } from "@prisma/client";
 import { SetStateAction } from "jotai";
 import { MORE_CATEGORY } from "@/app/(private)/page";
+import MoreDialog from "../dialog/MoreDialog";
+import DialogDetail from "../dialog/DialogDetail";
 
 interface AccordionCardProps {
   item: {
@@ -22,6 +23,8 @@ interface AccordionCardProps {
   handleSelectedNote: (id: string) => void;
   setMoreDialog: (moreDialog: boolean) => void;
   setMoreDialogCategory: Dispatch<SetStateAction<MORE_CATEGORY>>;
+
+  moreDialogCategory: MORE_CATEGORY;
 }
 
 const AccordionCard = ({
@@ -29,6 +32,7 @@ const AccordionCard = ({
   handleSelectedNote,
   setMoreDialog,
   setMoreDialogCategory,
+  moreDialogCategory,
 }: AccordionCardProps) => {
   return (
     <Card
@@ -49,19 +53,11 @@ const AccordionCard = ({
               <p className="text-gray-500">No notes</p>
             </div>
           ) : (
-            item.notes
-              .slice(0, 5)
-              .map((note) => (
-                <CardItem
-                  key={note.id}
-                  id={note.id}
-                  title={note.title}
-                  unScheduled={note.unScheduled}
-                  startDate={note.startDate}
-                  endDate={note.endDate}
-                  handleSelectedNote={handleSelectedNote}
-                />
-              ))
+            item.notes.slice(0, 5).map((note) => (
+              <div key={note.id} onClick={(e) => e.stopPropagation()}>
+                <DialogDetail key={note.id} note={note} />
+              </div>
+            ))
           )}
           {item.notes.length > 5 && (
             <Button
@@ -70,7 +66,10 @@ const AccordionCard = ({
               className="w-[100px] ml-auto cursor-pointer"
               onClick={() => setMoreDialog(true)}
             >
-              <span>more...</span>
+              <MoreDialog
+                moreDialogCategory={moreDialogCategory}
+                handleSelectedNote={handleSelectedNote}
+              />
             </Button>
           )}
         </AccordionContent>
