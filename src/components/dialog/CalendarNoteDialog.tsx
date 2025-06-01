@@ -6,61 +6,39 @@ import {
   DialogDescription,
   DialogClose,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Note } from "@prisma/client";
-import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
+import { Button } from "../ui/button";
 import DeleteDialog from "./DeleteDialog";
-import CardItem from "../card/CardItem";
-import { useDialogTrigger } from "@/hooks/useDialogTrigger";
-import { useAtom } from "jotai";
-import { dialogNoteAtom } from "@/atom/noteAtom";
 import { useTrashNote } from "@/hooks/useTrashNote";
 
-interface DialogDetailProps {
+interface CalendarNoteDialogProps {
   note: Note;
+  calendarNoteDialog: boolean;
+  setCalendarNoteDialog: (calendarNoteDialog: boolean) => void;
 }
 
-const DialogDetail = ({ note }: DialogDetailProps) => {
+const CalendarNoteDialog = ({
+  note,
+  calendarNoteDialog,
+  setCalendarNoteDialog,
+}: CalendarNoteDialogProps) => {
   const router = useRouter();
-
-  const [dialogNote, setDialogNote] = useAtom(dialogNoteAtom);
-
-  const { cardDialog, setCardDialog } = useDialogTrigger();
   const { handleMoveToTrash } = useTrashNote();
 
   if (!note) return null;
 
-  const titleSlug = encodeURIComponent(dialogNote?.title as string);
-  const slug = `${titleSlug}-${dialogNote?.id}`;
+  const titleSlug = encodeURIComponent(note.title as string);
+  const slug = `${titleSlug}-${note.id}`;
 
   if (!note) return null;
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setCardDialog(newOpen);
-    if (!newOpen) {
-      setTimeout(() => setDialogNote(null), 200);
-    }
-  };
-
-  const isTrashed = dialogNote?.deletedAt !== null;
+  const isTrashed = note.deletedAt !== null;
 
   return (
-    <Dialog open={cardDialog} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild className="w-full">
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setDialogNote(note);
-            setCardDialog(true);
-          }}
-        >
-          <CardItem note={note} />
-        </div>
-      </DialogTrigger>
+    <Dialog open={calendarNoteDialog} onOpenChange={setCalendarNoteDialog}>
       <DialogContent className="w-[50%]">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -79,13 +57,16 @@ const DialogDetail = ({ note }: DialogDetailProps) => {
         <DialogFooter>
           <Button
             variant={isTrashed ? "secondary" : "destructive"}
-            onClick={() => {handleMoveToTrash(note.id as string)}}
+            onClick={() => {
+              handleMoveToTrash(note.id as string);
+              setCalendarNoteDialog(false);
+            }}
             className={`${isTrashed ? "bg-green-400 hover:bg-green-300" : ""}`}
           >
             {isTrashed ? "Restore" : "Move To Trash"}
           </Button>
           {/* Delete Dialog */}
-          {isTrashed && <DeleteDialog selectedNote={dialogNote as Note} />}
+          {isTrashed && <DeleteDialog />}
 
           {/* Edit Button */}
           <Button
@@ -100,4 +81,4 @@ const DialogDetail = ({ note }: DialogDetailProps) => {
   );
 };
 
-export default DialogDetail;
+export default CalendarNoteDialog;

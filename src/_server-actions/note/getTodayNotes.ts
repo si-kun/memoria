@@ -8,13 +8,13 @@ export const getTodayNotes = async (userId: string) => {
     const toDayNotes = await prisma.note.findMany({
       where: {
         userId,
-        unScheduled: false,
+        isUnscheduled: false,
         deletedAt: null,
         startDate: {
           gte: startOfDay(new Date()),
           lte: endOfDay(new Date()),
         },
-        public: true,
+        isPublic: true,
       },
       orderBy: {
         createdAt: "desc",

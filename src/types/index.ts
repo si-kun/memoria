@@ -24,7 +24,7 @@ export interface AddNoteDataFrom {
     startDate: Date;
     endDate: Date;
     folderName: string;
-    public: boolean;
+    isPublic: boolean;
     content: string;
 }
 
@@ -36,15 +36,15 @@ export interface NoteData {
     id: string;
     title: string;
     tags: string[];
-    unScheduled: boolean;
+    isUnscheduled: boolean;
     startDate: Date | null;
     endDate: Date | null;
     folderName: string;
     selectedFolder?: string;
     newFolder?: string;
-    public: boolean;
+    isPublic: boolean;
     content: string;
-    favorite: boolean;
+    isFavorite: boolean;
     deletedAt: Date | null;
 }
 

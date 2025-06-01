@@ -17,3 +17,6 @@ export const trashNoteAtom = atom<Note[]>([])
 export const folderAtom = atom<FolderWithCount[]>([])
 
 export const tagsAtom = atom<TagWithCount[]>([])
+
+// ダイアログ表示用ノート
+export const dialogNoteAtom = atom<Note | null>(null)

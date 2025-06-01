@@ -18,7 +18,7 @@ export const noteSchema = z.object({
     unScheduled: z.boolean(),
     startDate: z.date().nullable(),
     endDate: z.date().nullable(),
-    public: z.boolean(),
-    favorite: z.boolean().optional(),
+    isPublic: z.boolean(),
+    isFavorite: z.boolean().optional(),
     deletedAt: z.date().nullable().optional(),
   });

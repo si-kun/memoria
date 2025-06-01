@@ -5,28 +5,29 @@ import { ChevronRight, Star } from "lucide-react";
 import { Note } from "@prisma/client";
 
 interface CardItemProps {
-  note: Note | null;
+  note: Note;
 }
 
 const CardItem = ({ note }: CardItemProps) => {
+
+  const { title, isFavorite, isUnscheduled,startDate,endDate} = note;
+
   return (
     <Card
-      // key={note?.id}
       className="flex flex-col w-full gap-0 relative hover:shadow-lg cursor-pointer transition-all duration-300 py-2"
-      // onClick={() => handleSelectedNote(id)}
     >
       <CardHeader className="text-lg font-bold flex items-center gap-1">
-        {note?.favorite && (
+        {isFavorite && (
           <Star fill="currentColor" className="text-yellow-300 w-5 h-5" />
         )}
-        {note?.title}
+        {title}
       </CardHeader>
       <CardContent className="text-sm text-gray-500 flex items-center gap-3">
-        {note?.unScheduled ? (
+        {isUnscheduled ? (
           <span className="text-red-500">not Date</span>
         ) : (
-          <span>
-            {note?.startDate?.toDateString()} - {note?.endDate?.toDateString()}
+          <span className={`${endDate && endDate< new Date() ? "text-red-500 font-bold" : ""}`}>
+            {startDate?.toDateString()} - {endDate?.toDateString()}
           </span>
         )}
       </CardContent>

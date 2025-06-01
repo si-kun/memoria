@@ -11,12 +11,12 @@ export const updateNote = async (note: NoteData, userId: string) => {
       title,
       content,
       folderName,
-      public: isPublic,
-      unScheduled,
+      isPublic,
+      isUnscheduled,
       tags,
       startDate,
       endDate,
-      favorite,
+      isFavorite,
     } = note;
 
     const folder =
@@ -45,11 +45,11 @@ export const updateNote = async (note: NoteData, userId: string) => {
         title,
         content,
         folderId: folder.id,
-        public: isPublic,
-        unScheduled,
+        isPublic,
+        isUnscheduled,
         startDate,
         endDate,
-        favorite,
+        isFavorite,
       },
     });
 

@@ -7,7 +7,7 @@ export const getFavorite = async (userId: string) => {
         const favoriteNotes = await prisma.note.findMany({
             where: {
                 userId,
-                favorite: true,
+                isFavorite: true,
                 deletedAt: null,
             },
             orderBy: {

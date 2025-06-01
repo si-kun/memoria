@@ -10,11 +10,11 @@ const PublicCheck = ({ checked, onChange }: PublicCheckProps) => {
   return (
     <div className="flex items-center gap-1">
       <Checkbox
-        id="public"
+        id="isPublic"
         checked={checked}
         onCheckedChange={onChange}
       />
-      <label htmlFor="public">Public</label>
+      <label htmlFor="isPublic">Public</label>
     </div>
   );
 };

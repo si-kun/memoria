@@ -3,10 +3,12 @@ import { useFetchNotes } from "./useFetchNotes";
 import toast from "react-hot-toast";
 import { deleteNote } from "@/_server-actions/note/deleteNote";
 import { Note } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDialogTrigger } from "./useDialogTrigger";
 import { moveToManyTrashNote } from "@/_server-actions/note/moveToManyTrashNote";
 import { useMoreDialog } from "./useMoreDialog";
+import { useAtom } from "jotai";
+import { dialogNoteAtom } from "@/atom/noteAtom";
 
 export interface SelectedCard  {id: string, title: string}
 
@@ -15,16 +17,11 @@ export function useTrashNote() {
   const { setMoreDialog } = useMoreDialog();
 
 
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [dialogNote, setDialogNote] = useAtom(dialogNoteAtom);
   const [selectedCard, setSelectedCard] = useState<SelectedCard[]>([]);
 
 
   const {setCardDialog} = useDialogTrigger()
-
-  useEffect(() => {
-    console.log("selectedCard 最新:", selectedCard);
-    console.log("selectedNote 最新:", selectedNote);
-  }, [selectedCard,selectedNote]);
 
   const handleSelectCard = (note: Note) => {
     if (selectedCard.some((card) => card.id === note.id)) {
@@ -35,49 +32,16 @@ export function useTrashNote() {
     console.log(selectedCard)
   };
 
-  // const handleMoveToTrash = async (id: string) => {
-  //   // ゴミ箱移動API
-  //   const result = await moveToTrashNote(id);
-  
-  //   if (result.success) {
-  //     // 削除前か復元かでメッセージ出し分け
-  //     if (selectedNote?.deletedAt === null) {
-  //       toast.success(`${selectedNote?.title}をゴミ箱に移動しました`);
-  //     } else {
-  //       toast.success(`${selectedNote?.title}を復元しました`);
-  //     }
-  
-  //     // 選択中リストから削除idを除外
-  //     setSelectedCard((prev) => prev.filter((card) => card.id !== id));
-  
-  //     // ダイアログを閉じる
-  //     setCardDialog(false);
-  
-  //     // ノート一覧を再取得（stateが最新に）
-  //     refetchNotes();
-  
-  //     // Dialog閉じアニメ後に詳細選択も解除（200msはshadcn/Dialogのデフォアニメ）
-  //     setTimeout(() => {
-  //       setSelectedNote(null);
-  //       console.log(selectedCard)
-  //     }, 200);
-  
-  //   } else {
-  //     toast.error(result.error as string);
-  //     console.error(result.error);
-  //   }
-  // };
-
   const handleMoveToTrash = async (id: string) => {
     // ゴミ箱移動API
     const result = await moveToTrashNote(id);
   
     if (result.success) {
       // 削除前か復元かでメッセージ出し分け
-      if (selectedNote?.deletedAt === null) {
-        toast.success(`${selectedNote?.title}をゴミ箱に移動しました`);
+      if (dialogNote?.deletedAt === null) {
+        toast.success(`${dialogNote?.title}をゴミ箱に移動しました`);
       } else {
-        toast.success(`${selectedNote?.title}を復元しました`);
+        toast.success(`${dialogNote?.title}を復元しました`);
       }
   
       // ダイアログを閉じる
@@ -87,7 +51,7 @@ export function useTrashNote() {
       refetchNotes();
   
       // 詳細選択も即座に解除
-      setSelectedNote(null);
+      setDialogNote(null);
   
     } else {
       toast.error(result.error as string);
@@ -113,7 +77,7 @@ export function useTrashNote() {
       const result = await deleteNote(id);
       if (result.success) {
         toast.success("ノートを削除しました");
-        setSelectedNote(null);
+        setDialogNote(null);
         refetchNotes();
       }
     } catch (error) {
@@ -125,8 +89,6 @@ export function useTrashNote() {
 
   return {
     handleSelectCard,
-    selectedNote,
-    setSelectedNote,
     selectedCard,
     setSelectedCard,
     handleMoveToTrash,

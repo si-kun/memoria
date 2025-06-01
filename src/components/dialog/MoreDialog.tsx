@@ -18,10 +18,7 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Checkbox } from "../ui/checkbox";
-import { deleteManyNoteCard } from "@/_server-actions/note/deleteManyNoteCard";
-import toast from "react-hot-toast";
 import { Button } from "../ui/button";
-import { useFetchNotes } from "@/hooks/useFetchNotes";
 import MoreDialogSort from "../select/MoreDialogSort";
 import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import { useMoreDialog } from "@/hooks/useMoreDialog";
@@ -67,8 +64,6 @@ const MoreDialog = ({ moreDialogCategory }: MoreDialogProps) => {
     setSelectedCard,
     handleMoveToManyTrashNote,
   } = useTrashNote();
-
-  const { refetchNotes } = useFetchNotes();
 
   useEffect(() => {
     let notes: Note[] = [];
@@ -116,32 +111,12 @@ const MoreDialog = ({ moreDialogCategory }: MoreDialogProps) => {
   ]);
 
   useEffect(() => {
-    if (!moreDialog) {
-      setSelectedCard([]);
-    }
-  }, [moreDialog]);
-
-  useEffect(() => {
     // 現在のカテゴリーノート一覧に存在しないIDを selectedCard から除外
     setSelectedCard((prev) =>
       prev.filter((card) => categoryNotes.some((note) => note.id === card.id))
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryNotes]);
-
-  // const handleDeleteManyCard = async () => {
-  //   const res = await deleteManyNoteCard(selectedCard);
-
-  //   if (res.message) {
-  //     toast.success(res.message);
-  //     setSelectedCard([]);
-  //     refetchNotes();
-  //     setMoreDialog(false);
-  //   }
-
-  //   if (res.error) {
-  //     toast.error(res.error);
-  //   }
-  // };
 
   return (
     <Dialog open={moreDialog} onOpenChange={setMoreDialog}>
@@ -176,12 +151,7 @@ const MoreDialog = ({ moreDialogCategory }: MoreDialogProps) => {
                   >
                     Restore
                   </Button>
-                  {/* <Button
-                    variant={"destructive"}
-                    onClick={handleDeleteManyCard}
-                  >
-                    Delete
-                  </Button> */}
+
                   <DeleteDialog
                     selectedCard={selectedCard}
                     setSelectedCard={setSelectedCard}

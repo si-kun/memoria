@@ -30,6 +30,7 @@ model Folder {
   folderName String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  color String?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
   notes Note[]
@@ -46,12 +47,14 @@ model Note {
   folderId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  public Boolean @default(false)
+  isPublic Boolean @default(false)
   startDate DateTime?
   endDate DateTime?
-  unScheduled Boolean @default(false)
-  favorite Boolean @default(false)
+  isUnscheduled Boolean @default(false)
+  isFavorite Boolean @default(false)
   deletedAt DateTime?
+  color String?
+  isCompleted Boolean @default(false)
   tags TagOnNote[]
 
   @@unique([title, userId])
@@ -61,6 +64,7 @@ model Tag {
   id String @id @default(uuid())
   name String
   userId String
+  color String?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   notes TagOnNote[]
 

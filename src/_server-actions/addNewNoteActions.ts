@@ -9,13 +9,13 @@ export const addNewNoteActions = async (addNote: NoteData, userId: string) => {
     title,
     content,
     folderName,
-    public: isPublic,
+    isPublic,
     startDate,
     endDate,
-    unScheduled,
+    isUnscheduled,
     tags = [],
     deletedAt = null,
-    favorite,
+    isFavorite,
   } = addNote;
 
   try {
@@ -45,12 +45,12 @@ export const addNewNoteActions = async (addNote: NoteData, userId: string) => {
         content,
         folderId: folder.id,
         userId,
-        unScheduled,
-        public: isPublic,
+        isUnscheduled,
+        isPublic,
         startDate: startDate ?? null,
         endDate: endDate ?? null,
         deletedAt: deletedAt ?? null,
-        favorite: favorite ?? false,
+        isFavorite: isFavorite ?? false,
       },
     });
 

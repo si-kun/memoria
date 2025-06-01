@@ -11,21 +11,21 @@ import {
 import { Button } from "../ui/button";
 import { useDeleteDialog } from "@/hooks/useDeleteDialog";
 import { SelectedCard, useTrashNote } from "@/hooks/useTrashNote";
-import { Note } from "@prisma/client";
+import { useAtomValue } from "jotai";
+import { dialogNoteAtom } from "@/atom/noteAtom";
 
 interface DeleteDialogProps {
-  selectedNote?: Note | null;
   selectedCard?: SelectedCard[] | null;
   setSelectedCard?:  Dispatch<SetStateAction<SelectedCard[]>>
 }
 
 const DeleteDialog = ({
-  selectedNote,
   selectedCard,
   setSelectedCard,
 }: DeleteDialogProps) => {
   const { deleteDialogOpen, setDeleteDialogOpen } = useDeleteDialog();
   const { handleDeleteCard } = useTrashNote();
+  const dialogNote = useAtomValue(dialogNoteAtom);
 
   return (
     <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -41,7 +41,7 @@ const DeleteDialog = ({
                 <p key={card.id}>{card.title}</p>
               ))}
             </div>
-            {selectedNote?.title} を完全に削除してもよろしいですか？
+            {dialogNote?.title} を完全に削除してもよろしいですか？
           </DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             <span>
@@ -55,11 +55,11 @@ const DeleteDialog = ({
           <Button
             variant={"destructive"}
             onClick={() => {
-              handleDeleteCard(selectedNote?.id as string);
+              handleDeleteCard(dialogNote?.id as string);
               setDeleteDialogOpen(false);
               if (setSelectedCard)
                 setSelectedCard((prev) =>
-                  prev.filter((id) => id !== selectedNote?.id)
+                  prev.filter((card) => card.id !== dialogNote?.id)
                 );
             }}
           >

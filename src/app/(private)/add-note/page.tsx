@@ -19,11 +19,11 @@ const AddNotePage = () => {
       title: "",
       content: "",
       tags: [],
-      unScheduled: false,
+      isUnscheduled: false,
       startDate: new Date() || null,
       endDate: new Date() || null,
       folderName: "",
-      public: true,
+      isPublic: true,
     },
   });
 

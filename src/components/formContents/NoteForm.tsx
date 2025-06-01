@@ -61,7 +61,7 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
   const user = useAtomValue(userAtom);
   const userId = user?.id;
 
-  const unScheduled = watch("unScheduled");
+  const isUnscheduled = watch("isUnscheduled");
 
   const handleToggleChange = <K extends Path<NoteData>>(key: K) => {
     const current = watch(key) as boolean;
@@ -69,7 +69,7 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
   };
 
   const onSubmit = async (data: NoteData) => {
-    if (unScheduled) {
+    if (isUnscheduled) {
       data.startDate = null;
       data.endDate = null;
     }
@@ -127,8 +127,8 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
           <FormTagInput defaultValues={defaultValues.tags} />
           <Card className="flex flex-col gap-2 mt-4 p-4 space-y-2">
             <FormUnsheduled
-              checked={unScheduled}
-              onChange={() => handleToggleChange("unScheduled")}
+              checked={watch("isUnscheduled")}
+              onChange={() => handleToggleChange("isUnscheduled")}
             />
             <div className="flex gap-2">
               <FormDatePiceker
@@ -137,7 +137,7 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
                 setSelectedDate={(date) =>
                   setValue("startDate", date ?? watch("startDate"))
                 }
-                disabled={unScheduled}
+                disabled={watch("isUnscheduled")}
               />
               <FormDatePiceker
                 title="End"
@@ -145,7 +145,7 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
                 setSelectedDate={(date) =>
                   setValue("endDate", date ?? watch("endDate"))
                 }
-                disabled={unScheduled}
+                disabled={watch("isUnscheduled")}
               />
             </div>
             <FormFoldersSelect />
@@ -154,29 +154,29 @@ const NoteForm = ({ defaultValues, isEdit }: NoteFormProps) => {
             <Button
               type="button"
               variant={"ghost"}
-              onClick={() => handleToggleChange("favorite")}
+              onClick={() => handleToggleChange("isFavorite")}
               className={`${
-                watch("favorite")
+                watch("isFavorite")
                   ? "text-yellow-500 bg-yellow-50 hover:bg-yellow-50"
                   : ""
               } transition-all duration-300`}
             >
               <Star
                 className={`${
-                  watch("favorite")
+                  watch("isFavorite")
                     ? "text-yellow-500 bg-yellow-50"
                     : ""
                 }`}
               />
-              <span className={`${watch("favorite") ? "fill-yellow-500" : ""}`}>
-                {watch("favorite") ? "Favorite" : "Unfavorite"}
+              <span className={`${watch("isFavorite") ? "fill-yellow-500" : ""}`}>
+                {watch("isFavorite") ? "Favorite" : "Unfavorite"}
               </span>
             </Button>
 
             <div className="ml-auto flex items-center gap-2">
               <PublicCheck
-                checked={watch("public")}
-                onChange={() => handleToggleChange("public")}
+                checked={watch("isPublic")}
+                onChange={() => handleToggleChange("isPublic")}
               />
               <NoteSubmitButton />
             </div>
